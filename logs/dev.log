@@ -1,0 +1,11 @@
+
+> ufo@0.1.0 dev /Users/robert/Code/ufo
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.1.151:3001
+- Environments: .env.local
+✓ Ready in 392ms
+[?25h
+ ELIFECYCLE  Command failed with exit code 1.

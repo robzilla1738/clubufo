@@ -1,198 +1,148 @@
 import Link from "next/link";
-import { Hero } from "@/components/site/hero";
 import { db, schema } from "@/lib/db/client";
-import { desc, eq, count } from "drizzle-orm";
-import { DocCard, type DocCardItem } from "@/components/library/doc-card";
-import { ArrowRight, FileText, Sparkles, Search, Quote } from "lucide-react";
+import { desc, eq, count, and, isNotNull } from "drizzle-orm";
+import { HeroCarousel, type CarouselSlide } from "@/components/site/hero-carousel";
 
 export const dynamic = "force-dynamic";
 
+const TRUMP_QUOTE = `BASED ON THE TREMENDOUS INTEREST SHOWN, I WILL BE DIRECTING THE SECRETARY OF WAR, AND OTHER RELEVANT DEPARTMENTS AND AGENCIES, TO BEGIN THE PROCESS OF IDENTIFYING AND RELEASING GOVERNMENT FILES RELATED TO ALIEN AND EXTRATERRESTRIAL LIFE, UNIDENTIFIED AERIAL PHENOMENA (UAP), AND UNIDENTIFIED FLYING OBJECTS (UFOS), AND ANY AND ALL OTHER ANOMALOUS, UNEXPLAINED EVENTS RECORDED IN THE FILES OF THE U.S. GOVERNMENT.`;
+
 export default async function Home() {
   let total = 0;
-  let featured: DocCardItem[] = [];
+  let pageCount = 0;
+  let claimCount = 0;
+  let slides: CarouselSlide[] = [];
 
   try {
-    const [{ value }] = await db
+    const [{ value: docs }] = await db
       .select({ value: count() })
       .from(schema.documents)
       .where(eq(schema.documents.status, "ready"));
-    total = Number(value ?? 0);
+    total = Number(docs ?? 0);
 
-    featured = (await db
+    const [{ value: pgs }] = await db
+      .select({ value: count() })
+      .from(schema.pages)
+      .where(eq(schema.pages.status, "extracted"));
+    pageCount = Number(pgs ?? 0);
+
+    const [{ value: cls }] = await db
+      .select({ value: count() })
+      .from(schema.claims);
+    claimCount = Number(cls ?? 0);
+
+    // Featured slides: first-page thumbnails of ready documents.
+    const rows = await db
       .select({
-        id: schema.documents.id,
-        title: schema.documents.title,
-        pageCount: schema.documents.pageCount,
-        summary: schema.documents.summary,
-        tags: schema.documents.tags,
-        uploadedAt: schema.documents.uploadedAt,
+        id: schema.pages.documentId,
+        title: schema.documents.kicker,
+        fallbackTitle: schema.documents.title,
+        page: schema.pages.page,
+        thumbUrl: schema.pages.thumbUrl,
+        imageUrl: schema.pages.imageUrl,
       })
-      .from(schema.documents)
-      .where(eq(schema.documents.status, "ready"))
+      .from(schema.pages)
+      .innerJoin(schema.documents, eq(schema.documents.id, schema.pages.documentId))
+      .where(
+        and(
+          eq(schema.documents.status, "ready"),
+          eq(schema.pages.page, 1),
+          isNotNull(schema.pages.thumbUrl),
+        ),
+      )
       .orderBy(desc(schema.documents.uploadedAt))
-      .limit(6)) as DocCardItem[];
+      .limit(24);
+
+    slides = rows.map((r) => ({
+      id: r.id,
+      title: r.title || r.fallbackTitle,
+      page: r.page,
+      thumbUrl: r.thumbUrl,
+      imageUrl: r.imageUrl,
+    }));
   } catch (e) {
     console.warn("[home] db unavailable", e);
   }
 
   return (
-    <>
-      <Hero docCount={total || 161} />
-
-      <section className="mx-auto max-w-7xl px-5 sm:px-8 py-20 grid gap-10 md:grid-cols-3">
-        <Feature
-          icon={<Search className="size-4" />}
-          title="Search every page"
-          body="Hybrid vector + keyword search across the whole corpus, ranked so the most relevant passages surface first."
-        />
-        <Feature
-          icon={<Sparkles className="size-4" />}
-          title="Chat with citations"
-          body="Every answer points back to the exact page in the exact document. No hallucinated history."
-        />
-        <Feature
-          icon={<Quote className="size-4" />}
-          title="Source-first"
-          body="Read the raw text alongside metadata. The corpus is yours to skim, study, and second-guess."
-        />
+    <div className="flex-1 flex flex-col">
+      {/* HERO */}
+      <section className="relative pt-12 md:pt-16 pb-16 md:pb-24 overflow-hidden">
+        <HeroCarousel slides={slides} />
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 sm:px-8 pb-20">
-        <div className="flex items-end justify-between gap-4 mb-6 border-b border-border/60 pb-4">
-          <div className="space-y-1">
-            <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-              Recent additions
-            </p>
-            <h2 className="font-display text-3xl tracking-tight">
-              From the stacks
-            </h2>
+      {/* TRUMP QUOTE BAND */}
+      <section className="border-t hairline">
+        <div className="px-6 lg:px-10 py-8 grid grid-cols-12 gap-6">
+          <div className="col-span-12 md:col-span-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground space-y-1.5">
+            <div className="text-foreground/80">DONALD J. TRUMP</div>
+            <div>TRUTH SOCIAL</div>
           </div>
-          <Link
-            href="/library"
-            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            View all
-            <ArrowRight className="size-3.5" />
-          </Link>
-        </div>
-        {featured.length === 0 ? (
-          <EmptyShelf />
-        ) : (
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((d) => (
-              <DocCard key={d.id} doc={d} />
-            ))}
+          <div className="col-span-12 md:col-span-9 text-[11px] md:text-[12px] uppercase tracking-[0.12em] leading-[1.9] text-foreground/85">
+            {TRUMP_QUOTE}
           </div>
-        )}
-      </section>
-
-      <section className="border-y border-border/60 bg-card/30">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 py-16 grid gap-10 md:grid-cols-2 items-center">
-          <div className="space-y-4">
-            <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-              How to use
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl tracking-tight max-w-md text-balance">
-              Type a question. Read the source. Trust the citation.
-            </h2>
-            <p className="text-muted-foreground leading-relaxed max-w-md">
-              Ask anything about UFOs, sightings, government programs, or
-              individual cases. The librarian only answers from the corpus, and
-              every claim links back to a specific page.
-            </p>
-            <Link
-              href="/chat"
-              className="inline-flex items-center gap-1.5 text-primary hover:brightness-110 transition-all"
-            >
-              Start a conversation
-              <ArrowRight className="size-3.5" />
-            </Link>
-          </div>
-          <div className="rounded-xl border border-border/60 bg-background/60 p-5 space-y-3 font-mono text-sm">
-            <div className="flex items-center gap-2 text-muted-foreground text-[10px] uppercase tracking-widest">
-              <span className="size-1.5 rounded-full bg-primary" />
-              Example
-            </div>
-            <p className="text-muted-foreground">
-              <span className="text-foreground/80">›</span> What did the
-              military officially conclude about the 1947 incident?
-            </p>
-            <p className="leading-relaxed text-foreground/80">
-              The official statement framed the recovered debris as a weather
-              balloon
-              <span className="inline-flex items-center justify-center min-w-[14px] h-[14px] px-0.5 rounded-sm bg-primary/15 text-primary text-[9px] mx-0.5 align-text-top">
-                1
-              </span>
-              , though the original press release described a
-              &quot;flying disc&quot;
-              <span className="inline-flex items-center justify-center min-w-[14px] h-[14px] px-0.5 rounded-sm bg-primary/15 text-primary text-[9px] mx-0.5 align-text-top">
-                2
-              </span>
-              .
-            </p>
-            <div className="border-t border-border/60 pt-3 space-y-1.5">
-              <Source idx={1} title="Project Mogul Final Report" page={42} />
-              <Source idx={2} title="RAAF Press Release, July 1947" page={1} />
-            </div>
+          <div className="col-span-12 md:col-span-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground text-right tabular-nums">
+            [02 19 26]
           </div>
         </div>
       </section>
-    </>
+
+      {/* CTA + STATS */}
+      <section className="border-t hairline">
+        <div className="px-6 lg:px-10 py-12 md:py-20 grid gap-10 md:grid-cols-2 items-center">
+          <div className="space-y-6">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-cyan">
+              &gt; INTERROGATE THE CORPUS
+            </p>
+            <h1 className="text-3xl md:text-5xl uppercase tracking-tight leading-[1.05]">
+              ASK A QUESTION.
+              <br />
+              READ THE SOURCE.
+              <br />
+              <span className="text-cyan">TRUST THE CITATION.</span>
+            </h1>
+            <p className="text-[12px] md:text-[13px] uppercase tracking-[0.08em] leading-[1.8] text-muted-foreground max-w-md">
+              Every answer is grounded in the archive. Each citation is
+              clickable and opens the exact page of the original PDF, with the
+              quoted span highlighted.
+            </p>
+            <div className="flex gap-3 pt-2">
+              <Link
+                href="/chat"
+                className="inline-flex items-center gap-3 px-5 py-3 border border-cyan text-cyan hover:bg-cyan hover:text-black transition-colors text-[11px] uppercase tracking-[0.2em]"
+              >
+                &gt; OPEN TERMINAL <span className="cursor-blink"></span>
+              </Link>
+              <Link
+                href="/archive"
+                className="inline-flex items-center gap-3 px-5 py-3 border hairline text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors text-[11px] uppercase tracking-[0.2em]"
+              >
+                BROWSE [161] FILES
+              </Link>
+            </div>
+          </div>
+
+          {/* Stats panel */}
+          <div className="grid grid-cols-3 gap-4 border hairline p-6">
+            <Stat label="DOCUMENTS" value={total || 161} />
+            <Stat label="PAGES INDEXED" value={pageCount} />
+            <Stat label="CLAIMS EXTRACTED" value={claimCount} />
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
 
-function Feature({
-  icon,
-  title,
-  body,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  body: string;
-}) {
+function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="space-y-3">
-      <div className="size-9 rounded-md border border-border/70 bg-card/40 flex items-center justify-center text-primary">
-        {icon}
+    <div className="space-y-2 border-l hairline pl-4 first:border-l-0 first:pl-0 md:border-l md:pl-4">
+      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
       </div>
-      <h3 className="font-display text-xl tracking-tight">{title}</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
-    </div>
-  );
-}
-
-function Source({
-  idx,
-  title,
-  page,
-}: {
-  idx: number;
-  title: string;
-  page: number;
-}) {
-  return (
-    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-      <span className="inline-flex items-center justify-center min-w-[14px] h-[14px] px-0.5 rounded-sm bg-primary/15 text-primary text-[9px] font-mono">
-        {idx}
-      </span>
-      <FileText className="size-3 text-muted-foreground/70" />
-      <span className="truncate">{title}</span>
-      <span className="text-muted-foreground/60">· p.{page}</span>
-    </div>
-  );
-}
-
-function EmptyShelf() {
-  return (
-    <div className="rounded-xl border border-dashed border-border/70 bg-card/30 p-10 text-center space-y-2">
-      <p className="font-display text-2xl">The shelves are empty</p>
-      <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
-        Set up the database, then run{" "}
-        <code className="font-mono text-foreground">
-          pnpm ingest &lt;path&gt;
-        </code>{" "}
-        to populate the library.
-      </p>
+      <div className="text-3xl md:text-4xl tabular-nums text-cyan">
+        {value.toLocaleString()}
+      </div>
     </div>
   );
 }

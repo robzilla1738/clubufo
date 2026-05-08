@@ -1,40 +1,29 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SiteHeader } from "@/components/site/header";
-import { SiteFooter } from "@/components/site/footer";
+import { HudBar } from "@/components/site/hud-bar";
+import { HudFooter } from "@/components/site/hud-footer";
 import { CommandMenu } from "@/components/site/command-menu";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
-});
-
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-serif",
-  weight: "400",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "ClubUFO — A reading room for the unexplained",
-    template: "%s · ClubUFO",
+    default: "CLUBUFO // ARCHIVE OF DECLASSIFIED UAP DOCUMENTS",
+    template: "%s · CLUBUFO",
   },
   description:
-    "A curated archive of declassified UFO documents, sightings, and field reports. Browse 161+ files or chat with the corpus.",
+    "Public archive of declassified UAP / UFO documents — 119 files, 4,000+ pages, page-by-page transcribed and indexed. Browse the corpus or query it directly.",
   metadataBase: new URL("https://clubufo.com"),
   openGraph: {
-    title: "ClubUFO",
-    description:
-      "A curated archive of declassified UFO documents. Browse the library or chat with the corpus.",
+    title: "CLUBUFO",
+    description: "Public archive of declassified UAP / UFO documents.",
     type: "website",
   },
 };
@@ -45,19 +34,21 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark ${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable}`}
+      className={`dark ${geistMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-h-dvh flex flex-col">
+      <body className="min-h-dvh flex flex-col bg-background text-foreground scanlines crt grain">
         <TooltipProvider delay={200}>
-          <SiteHeader />
-          <main className="flex-1 flex flex-col">{children}</main>
-          <SiteFooter />
+          <HudBar />
+          <main className="flex-1 flex flex-col min-h-0">{children}</main>
+          <HudFooter />
           <CommandMenu />
           <Toaster
             position="bottom-right"
             theme="dark"
-            toastOptions={{ className: "font-sans" }}
+            toastOptions={{
+              className: "font-mono text-[11px] uppercase tracking-wider",
+            }}
           />
         </TooltipProvider>
       </body>

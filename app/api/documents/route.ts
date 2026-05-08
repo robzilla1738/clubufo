@@ -36,6 +36,7 @@ export async function GET(req: NextRequest) {
     .select({
       id: schema.documents.id,
       title: schema.documents.title,
+      kicker: schema.documents.kicker,
       filename: schema.documents.filename,
       pageCount: schema.documents.pageCount,
       summary: schema.documents.summary,

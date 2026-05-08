@@ -13,7 +13,7 @@ async function main() {
   const totalPages = await pdfPageCount(path);
   console.log(`pages: ${totalPages}`);
 
-  for await (const p of renderPdfPages(path, { firstPage: 1, lastPage: 1 })) {
+  for await (const p of renderPdfPages(path, { batchSize: 1 })) {
     console.log(`rendered page ${p.page}, png ${p.png.length}B, thumb ${p.thumb.length}B`);
     const t0 = Date.now();
     const result = await extractPageFromImage({

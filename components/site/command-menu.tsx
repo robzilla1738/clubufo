@@ -11,9 +11,13 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { BookOpen, MessageSquare, Sparkles, FileText, Home } from "lucide-react";
 
-type DocHit = { id: string; title: string; pageCount: number | null };
+type DocHit = {
+  id: string;
+  title: string;
+  kicker: string | null;
+  pageCount: number | null;
+};
 
 type Store = {
   open: boolean;
@@ -47,7 +51,6 @@ export function CommandMenu() {
   const setOpen = useCommandStore((s) => s.setOpen);
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<DocHit[]>([]);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -63,11 +66,10 @@ export function CommandMenu() {
   useEffect(() => {
     if (!open) return;
     const ctrl = new AbortController();
-    setLoading(true);
     const t = setTimeout(async () => {
       try {
         const res = await fetch(
-          `/api/documents?q=${encodeURIComponent(query)}&limit=8`,
+          `/api/documents?q=${encodeURIComponent(query)}&limit=10`,
           { signal: ctrl.signal },
         );
         if (res.ok) {
@@ -76,10 +78,8 @@ export function CommandMenu() {
         }
       } catch {
         /* ignore */
-      } finally {
-        setLoading(false);
       }
-    }, 120);
+    }, 100);
     return () => {
       ctrl.abort();
       clearTimeout(t);
@@ -95,44 +95,50 @@ export function CommandMenu() {
     <CommandDialog
       open={open}
       onOpenChange={setOpen}
-      title="Search ClubUFO"
-      description="Find a document, jump to a page, or start a chat."
+      title="SEARCH ARCHIVE"
+      description="Find a document, jump to a page, or query the corpus."
+      className="font-mono"
     >
       <CommandInput
-        placeholder="Search 161 documents, ask a question…"
+        placeholder="QUERY ARCHIVE…"
         value={query}
         onValueChange={setQuery}
+        className="font-mono uppercase tracking-wider text-xs"
       />
       <CommandList>
-        <CommandEmpty>
-          {loading ? "Scanning the archive…" : "No matches yet."}
+        <CommandEmpty className="text-[11px] uppercase tracking-wider text-muted-foreground p-6 text-center">
+          NO MATCHES
         </CommandEmpty>
         {query.trim().length > 1 && (
-          <CommandGroup heading="Ask the corpus">
+          <CommandGroup heading="QUERY THE CORPUS">
             <CommandItem
-              onSelect={() =>
-                go(`/chat?q=${encodeURIComponent(query.trim())}`)
-              }
+              onSelect={() => go(`/chat?q=${encodeURIComponent(query.trim())}`)}
+              className="font-mono"
             >
-              <Sparkles className="size-4" />
-              <span>
-                Ask: <span className="text-foreground">{query.trim()}</span>
+              <span className="text-cyan">&gt;</span>
+              <span className="uppercase tracking-wider text-[11px]">
+                ASK: {query.trim()}
               </span>
             </CommandItem>
           </CommandGroup>
         )}
         {hits.length > 0 && (
-          <CommandGroup heading="Documents">
+          <CommandGroup heading="DOCUMENTS">
             {hits.map((d) => (
               <CommandItem
                 key={d.id}
-                value={`${d.title} ${d.id}`}
-                onSelect={() => go(`/library/${d.id}`)}
+                value={`${d.title} ${d.kicker} ${d.id}`}
+                onSelect={() => go(`/archive/${d.id}`)}
+                className="font-mono items-start py-2"
               >
-                <FileText className="size-4" />
-                <span className="truncate">{d.title}</span>
+                <span className="text-muted-foreground">[FILE]</span>
+                <div className="flex flex-col gap-0.5 truncate">
+                  <span className="text-[11px] uppercase tracking-wider truncate">
+                    {d.kicker ?? d.title}
+                  </span>
+                </div>
                 {d.pageCount ? (
-                  <span className="ml-auto font-mono text-[10px] text-muted-foreground">
+                  <span className="ml-auto text-[10px] text-muted-foreground">
                     {d.pageCount}p
                   </span>
                 ) : null}
@@ -141,18 +147,24 @@ export function CommandMenu() {
           </CommandGroup>
         )}
         <CommandSeparator />
-        <CommandGroup heading="Navigate">
-          <CommandItem onSelect={() => go("/")}>
-            <Home className="size-4" />
-            Home
+        <CommandGroup heading="NAVIGATE">
+          <CommandItem
+            onSelect={() => go("/")}
+            className="font-mono uppercase tracking-wider text-[11px]"
+          >
+            <span className="text-cyan">&gt;</span> HOME
           </CommandItem>
-          <CommandItem onSelect={() => go("/library")}>
-            <BookOpen className="size-4" />
-            Document library
+          <CommandItem
+            onSelect={() => go("/archive")}
+            className="font-mono uppercase tracking-wider text-[11px]"
+          >
+            <span className="text-cyan">&gt;</span> ARCHIVE
           </CommandItem>
-          <CommandItem onSelect={() => go("/chat")}>
-            <MessageSquare className="size-4" />
-            Chat with the archive
+          <CommandItem
+            onSelect={() => go("/chat")}
+            className="font-mono uppercase tracking-wider text-[11px]"
+          >
+            <span className="text-cyan">&gt;</span> CHAT
           </CommandItem>
         </CommandGroup>
       </CommandList>

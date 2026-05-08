@@ -1,56 +1,104 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 
-export const metadata = { title: "About" };
+export const metadata = { title: "ABOUT" };
 
 export default function AboutPage() {
   return (
-    <div className="mx-auto max-w-3xl w-full px-5 sm:px-8 py-20 space-y-10">
-      <header className="space-y-3">
-        <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-          About
+    <div className="flex-1 flex flex-col">
+      <header className="border-b hairline px-6 lg:px-10 py-12 space-y-3">
+        <p className="text-[10px] uppercase tracking-[0.2em] text-cyan">
+          &gt; ABOUT
         </p>
-        <h1 className="font-display text-4xl md:text-5xl tracking-tight text-balance">
-          A library, not a verdict.
+        <h1 className="text-3xl md:text-5xl uppercase tracking-tight leading-[1.05]">
+          A LIBRARY,
+          <br />
+          NOT A VERDICT.
         </h1>
       </header>
 
-      <div className="space-y-5 text-foreground/85 leading-relaxed text-[17px] font-serif">
-        <p>
-          ClubUFO is a private reading room for declassified UFO documents,
-          witness statements, and field reports — gathered from public
-          archives, FOIA releases, and reader submissions.
-        </p>
-        <p>
-          The site doesn&apos;t take a side on whether any of this is real. It
-          just makes the source material easier to read, cite, and
-          cross-reference. Every page in every PDF is indexed and searchable.
-          The chat assistant only quotes what&apos;s in the corpus, and shows
-          you the page it&apos;s pulling from.
-        </p>
-        <p>
-          Treat the documents as primary sources of varying credibility. Some
-          are official; some are anecdotal. The cited page is always the truth
-          of what the assistant said — read it for yourself.
-        </p>
+      <div className="px-6 lg:px-10 py-12 grid gap-10 md:grid-cols-2 max-w-5xl">
+        <Section heading="MISSION">
+          <p>
+            ClubUFO is a public reading room for declassified UAP / UFO
+            documents — government memos, witness reports, mission debriefs,
+            and FOIA releases — gathered into a single searchable archive.
+          </p>
+          <p>
+            The site doesn&apos;t take a side on whether any of it is real.
+            It just makes the source material easier to read, cite, and
+            cross-reference.
+          </p>
+        </Section>
+
+        <Section heading="HOW IT WORKS">
+          <p>
+            Every PDF is rendered to images and transcribed page-by-page by
+            a vision model. Each page yields cleaned text, named entities,
+            and a list of atomic claims with character offsets — so when the
+            chat assistant cites a passage, we can highlight the exact span
+            on the original page.
+          </p>
+          <p>
+            The chat answers are streamed by a separate model. It only
+            answers from the corpus, and inline citations are clickable
+            links back to the source page.
+          </p>
+        </Section>
+
+        <Section heading="DISCLAIMER">
+          <p>
+            Documents are collected from public, declassified, and
+            citizen-submitted sources. Some are official; some are
+            anecdotal. The cited page is always the truth of what the
+            assistant said — read it for yourself.
+          </p>
+        </Section>
+
+        <Section heading="STACK">
+          <ul className="space-y-1.5">
+            <li>NEXT.JS · TAILWIND · SHADCN/UI</li>
+            <li>NEON POSTGRES + PGVECTOR (HNSW, HYBRID SEARCH)</li>
+            <li>GEMINI 3.1 FLASH LITE — VISION OCR + TAGGING</li>
+            <li>OPENAI EMBEDDINGS (1536-DIM)</li>
+            <li>DEEPSEEK V3.1 — RAG ANSWERS</li>
+            <li>VERCEL BLOB — PAGE IMAGES</li>
+          </ul>
+        </Section>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 pt-4">
+      <div className="px-6 lg:px-10 py-12 border-t hairline flex flex-col sm:flex-row gap-4 max-w-5xl">
         <Link
-          href="/library"
-          className="inline-flex items-center gap-2 text-primary hover:brightness-110 transition-all"
+          href="/archive"
+          className="inline-flex items-center gap-2 border border-cyan text-cyan hover:bg-cyan hover:text-black transition-colors px-4 py-2 text-[10px] uppercase tracking-[0.18em]"
         >
-          Browse the library
-          <ArrowRight className="size-3.5" />
+          &gt; BROWSE THE ARCHIVE
         </Link>
         <Link
           href="/chat"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-2 border hairline hover:border-foreground/50 transition-colors px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
         >
-          Or start a conversation
-          <ArrowRight className="size-3.5" />
+          QUERY THE CORPUS
         </Link>
       </div>
     </div>
+  );
+}
+
+function Section({
+  heading,
+  children,
+}: {
+  heading: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-4">
+      <h2 className="text-[10px] uppercase tracking-[0.18em] text-cyan">
+        &gt; {heading}
+      </h2>
+      <div className="space-y-3 text-[12px] uppercase tracking-[0.06em] leading-[1.85] text-foreground/80 [&_p]:normal-case [&_p]:tracking-normal [&_p]:text-[13px] [&_li]:tracking-[0.12em]">
+        {children}
+      </div>
+    </section>
   );
 }

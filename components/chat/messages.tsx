@@ -2,7 +2,6 @@
 
 import { type UIMessage } from "ai";
 import { CitationChip, type Source } from "./citation-chip";
-import { Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function MessageList({
@@ -16,7 +15,7 @@ export function MessageList({
 }) {
   if (messages.length === 0) return null;
   return (
-    <div className="flex flex-col gap-7">
+    <div className="flex flex-col gap-8">
       {messages.map((m) => (
         <Message key={m.id} message={m} onOpenSource={onOpenSource} />
       ))}
@@ -41,24 +40,22 @@ function Message({
     ((message as { metadata?: { sources?: Source[] } }).metadata?.sources ?? []) as Source[];
 
   return (
-    <div className="flex gap-3 items-start">
+    <div className="flex flex-col gap-2">
       <div
         className={cn(
-          "size-8 shrink-0 rounded-md border flex items-center justify-center",
-          isUser
-            ? "border-border/60 bg-card/40 text-muted-foreground"
-            : "border-primary/40 bg-primary/10 text-primary",
+          "text-[10px] uppercase tracking-[0.18em] flex items-center gap-2",
+          isUser ? "text-muted-foreground" : "text-cyan",
         )}
       >
-        {isUser ? <User className="size-3.5" /> : <Sparkles className="size-3.5" />}
+        <span>{isUser ? "[USER] >" : "[LIBRARIAN] >"}</span>
       </div>
-      <div className="min-w-0 flex-1 space-y-2 pt-0.5">
-        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          {isUser ? "You" : "Librarian"}
-        </p>
-        <div className="text-[15px] leading-7 text-foreground/90 whitespace-pre-wrap">
-          {renderWithCitations(text, sources, onOpenSource)}
-        </div>
+      <div
+        className={cn(
+          "text-[14px] leading-[1.7] whitespace-pre-wrap",
+          isUser ? "text-foreground/85" : "text-foreground",
+        )}
+      >
+        {renderWithCitations(text, sources, onOpenSource)}
       </div>
     </div>
   );
@@ -98,16 +95,15 @@ function renderWithCitations(
 
 function ThinkingRow() {
   return (
-    <div className="flex gap-3 items-start">
-      <div className="size-8 shrink-0 rounded-md border border-primary/40 bg-primary/10 text-primary flex items-center justify-center">
-        <Sparkles className="size-3.5 animate-pulse" />
+    <div className="flex flex-col gap-2">
+      <div className="text-[10px] uppercase tracking-[0.18em] text-cyan">
+        [LIBRARIAN] &gt;
       </div>
-      <div className="pt-2">
-        <span className="inline-flex gap-1">
-          <span className="size-1.5 rounded-full bg-muted-foreground/40 animate-pulse" />
-          <span className="size-1.5 rounded-full bg-muted-foreground/40 animate-pulse [animation-delay:200ms]" />
-          <span className="size-1.5 rounded-full bg-muted-foreground/40 animate-pulse [animation-delay:400ms]" />
-        </span>
+      <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+        <span className="size-1 bg-cyan inline-block animate-pulse" />
+        <span className="size-1 bg-cyan inline-block animate-pulse [animation-delay:200ms]" />
+        <span className="size-1 bg-cyan inline-block animate-pulse [animation-delay:400ms]" />
+        <span className="ml-2">SCANNING ARCHIVE…</span>
       </div>
     </div>
   );

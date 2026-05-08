@@ -6,26 +6,7 @@
  */
 import { z } from "zod";
 import { generateObject } from "ai";
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-
-const MODEL_ID = "google/gemini-3.1-flash-lite";
-
-let _openrouter: ReturnType<typeof createOpenRouter> | null = null;
-function getProvider() {
-  if (_openrouter) return _openrouter;
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    throw new Error(
-      "OPENROUTER_API_KEY is not set. Add it to .env.local before running extraction.",
-    );
-  }
-  _openrouter = createOpenRouter({
-    apiKey,
-    appName: "ClubUFO",
-    appUrl: "https://clubufo.com",
-  });
-  return _openrouter;
-}
+import { geminiModel } from "./google";
 
 export const PageExtractionSchema = z.object({
   cleanedText: z
@@ -149,7 +130,7 @@ export async function extractPageFromImage(opts: {
   totalPages: number;
 }): Promise<ExtractedPage> {
   const { object, response } = await generateObject({
-    model: getProvider().chat(MODEL_ID),
+    model: geminiModel(),
     schema: PageExtractionSchema,
     schemaName: "PageExtraction",
     schemaDescription: "Structured extraction of a single PDF page.",
@@ -172,12 +153,6 @@ export async function extractPageFromImage(opts: {
         ],
       },
     ],
-    providerOptions: {
-      openrouter: {
-        // Pin to Google's Vertex global routing.
-        provider: { only: ["google-vertex"] },
-      },
-    },
   });
 
   const claims: ExtractedClaim[] = object.claims.map((c) => {

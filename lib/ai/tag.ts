@@ -5,20 +5,7 @@
  */
 import { z } from "zod";
 import { generateObject } from "ai";
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-
-const MODEL_ID = "google/gemini-3.1-flash-lite";
-
-let _openrouter: ReturnType<typeof createOpenRouter> | null = null;
-function getProvider() {
-  if (_openrouter) return _openrouter;
-  _openrouter = createOpenRouter({
-    apiKey: process.env.OPENROUTER_API_KEY ?? "",
-    appName: "ClubUFO",
-    appUrl: "https://clubufo.com",
-  });
-  return _openrouter;
-}
+import { geminiModel } from "./google";
 
 export const DocumentMetadataSchema = z.object({
   kicker: z
@@ -92,7 +79,7 @@ export async function generateDocumentMetadata(opts: {
     .join("\n\n---\n\n");
 
   const { object } = await generateObject({
-    model: getProvider().chat(MODEL_ID),
+    model: geminiModel(),
     schema: DocumentMetadataSchema,
     schemaName: "DocumentMetadata",
     schemaDescription:
@@ -115,11 +102,6 @@ ${samples}
 Generate the catalog entry.`,
       },
     ],
-    providerOptions: {
-      openrouter: {
-        provider: { only: ["google-vertex"] },
-      },
-    },
   });
 
   return object;

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ArrowUp, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Composer({
@@ -11,7 +10,7 @@ export function Composer({
   onStop,
   disabled,
   status,
-  placeholder = "Ask about the corpus…",
+  placeholder = "QUERY THE ARCHIVE…",
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -27,7 +26,7 @@ export function Composer({
     const el = ref.current;
     if (!el) return;
     el.style.height = "0px";
-    el.style.height = Math.min(el.scrollHeight, 200) + "px";
+    el.style.height = Math.min(el.scrollHeight, 180) + "px";
   }, [value]);
 
   const busy = status === "submitted" || status === "streaming";
@@ -38,37 +37,40 @@ export function Composer({
         e.preventDefault();
         if (!busy && value.trim()) onSubmit();
       }}
-      className="relative rounded-xl border border-border/60 bg-card/60 focus-within:border-border focus-within:ring-1 focus-within:ring-primary/40 transition-shadow"
+      className="border hairline bg-card/40 focus-within:border-cyan focus-within:bg-card/60 transition-colors"
     >
-      <textarea
-        ref={ref}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        rows={1}
-        disabled={disabled}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            if (!busy && value.trim()) onSubmit();
-          }
-        }}
-        className="block w-full resize-none bg-transparent border-0 outline-none px-4 py-3.5 pr-14 text-[15px] leading-6 placeholder:text-muted-foreground/60"
-      />
-      <button
-        type={busy ? "button" : "submit"}
-        onClick={busy ? onStop : undefined}
-        disabled={!busy && (!value.trim() || disabled)}
-        className={cn(
-          "absolute right-2 bottom-2 size-9 rounded-md flex items-center justify-center transition-all",
-          busy
-            ? "bg-foreground text-background hover:bg-foreground/90"
-            : "bg-primary text-primary-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:brightness-105",
-        )}
-        aria-label={busy ? "Stop" : "Send"}
-      >
-        {busy ? <Square className="size-3.5 fill-current" /> : <ArrowUp className="size-4" />}
-      </button>
+      <div className="flex items-start">
+        <span className="pl-3 pt-3 text-cyan text-[14px] select-none">&gt;</span>
+        <textarea
+          ref={ref}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          rows={1}
+          disabled={disabled}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              if (!busy && value.trim()) onSubmit();
+            }
+          }}
+          className="block w-full resize-none bg-transparent border-0 outline-none px-2 py-3 pr-3 text-[14px] leading-[1.6] placeholder:text-muted-foreground/60 placeholder:uppercase placeholder:tracking-[0.16em] placeholder:text-[12px]"
+        />
+        <button
+          type={busy ? "button" : "submit"}
+          onClick={busy ? onStop : undefined}
+          disabled={!busy && (!value.trim() || disabled)}
+          className={cn(
+            "shrink-0 m-2 px-3 h-9 text-[10px] uppercase tracking-[0.18em] transition-colors",
+            busy
+              ? "border border-foreground text-foreground hover:bg-foreground hover:text-background"
+              : "border border-cyan text-cyan disabled:opacity-30 disabled:cursor-not-allowed hover:bg-cyan hover:text-black",
+          )}
+          aria-label={busy ? "Stop" : "Send"}
+        >
+          {busy ? "STOP" : "SEND ⏎"}
+        </button>
+      </div>
     </form>
   );
 }
