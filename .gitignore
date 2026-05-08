@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# rendered page images (dev-only fallback when Blob isn't configured)
+/public/pages/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# planning artifacts
+/.claude/
