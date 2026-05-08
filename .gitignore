@@ -50,4 +50,7 @@ next-env.d.ts
 
 # planning artifacts
 /.claude/
+
+# logs from background ingest
+/logs/
 .env*.local
