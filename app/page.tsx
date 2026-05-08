@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db, schema } from "@/lib/db/client";
-import { desc, eq, count, and, isNotNull, ne } from "drizzle-orm";
+import { desc, eq, count, and, isNotNull, ne, inArray } from "drizzle-orm";
 import { HeroFileShelf, type HeroFile } from "@/components/site/hero-carousel";
 
 export const dynamic = "force-dynamic";
@@ -31,10 +31,13 @@ export default async function Home() {
   let files: HeroFile[] = [];
 
   try {
+    // Count every published document, including partials (1 PDF page failed
+    // OCR but the doc is still searchable). This matches war.gov's 161-file
+    // release count.
     const [{ value: docs }] = await db
       .select({ value: count() })
       .from(schema.documents)
-      .where(eq(schema.documents.status, "ready"));
+      .where(inArray(schema.documents.status, ["ready", "partial"]));
     total = Number(docs ?? 0);
 
     const [{ value: pgs }] = await db

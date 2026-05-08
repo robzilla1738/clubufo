@@ -15,19 +15,27 @@ type Body = {
 export async function POST(req: Request) {
   const { messages, documentId }: Body = await req.json();
 
-  const lastUser = [...messages].reverse().find((m) => m.role === "user");
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return Response.json({ error: "No messages provided." }, { status: 400 });
+  }
+
+  const lastUserIndex = findLastUserIndex(messages);
+  const lastUser = lastUserIndex >= 0 ? messages[lastUserIndex] : null;
   const userText = lastUser ? extractText(lastUser) : "";
+  const retrievalQuery = buildRetrievalQuery(messages, lastUserIndex);
 
   let hits: SearchHit[] = [];
   if (userText.trim()) {
     try {
-      const embedding = await embedQuery(userText);
-      hits = await hybridSearch({
+      const embedding = await embedQuery(retrievalQuery);
+      const rawHits = await hybridSearch({
         query: userText,
         embedding,
-        k: 8,
+        k: 18,
         documentId,
+        perSignal: 32,
       });
+      hits = curateHits(rawHits, 12);
     } catch (e) {
       console.error("[chat] retrieval error", e);
     }
@@ -42,7 +50,8 @@ export async function POST(req: Request) {
     model: deepseek("deepseek-chat"),
     system: `${SYSTEM_PROMPT}${sourcesNote}`,
     messages: await convertToModelMessages(messages),
-    temperature: 0.3,
+    temperature: 0.15,
+    maxOutputTokens: 1600,
   });
 
   return result.toUIMessageStreamResponse({
@@ -65,6 +74,13 @@ export async function POST(req: Request) {
   });
 }
 
+function findLastUserIndex(messages: UIMessage[]) {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === "user") return i;
+  }
+  return -1;
+}
+
 function extractText(m: UIMessage): string {
   const parts = (m as { parts?: Array<{ type: string; text?: string }> }).parts;
   if (Array.isArray(parts)) {
@@ -76,4 +92,42 @@ function extractText(m: UIMessage): string {
   const c = (m as { content?: unknown }).content;
   if (typeof c === "string") return c;
   return "";
+}
+
+function buildRetrievalQuery(messages: UIMessage[], lastUserIndex: number) {
+  if (lastUserIndex < 0) return "";
+  const current = extractText(messages[lastUserIndex]).trim();
+  const recent = messages
+    .slice(Math.max(0, lastUserIndex - 6), lastUserIndex)
+    .map((m) => {
+      const text = extractText(m).replace(/\s+/g, " ").trim();
+      if (!text) return null;
+      return `${m.role.toUpperCase()}: ${text.slice(0, 520)}`;
+    })
+    .filter(Boolean);
+
+  if (recent.length === 0) return current;
+  return [`CURRENT QUESTION: ${current}`, "RECENT THREAD:", ...recent].join("\n");
+}
+
+function curateHits(hits: SearchHit[], max: number) {
+  const selected: SearchHit[] = [];
+  const seenExact = new Set<string>();
+  const pageCounts = new Map<string, number>();
+
+  for (const hit of hits) {
+    const exactKey = `${hit.source}:${hit.chunkId ?? hit.claimId ?? hit.pageId}`;
+    if (seenExact.has(exactKey)) continue;
+
+    const pageKey = `${hit.documentId}:${hit.page}`;
+    const pageCount = pageCounts.get(pageKey) ?? 0;
+    if (pageCount >= 2) continue;
+
+    seenExact.add(exactKey);
+    pageCounts.set(pageKey, pageCount + 1);
+    selected.push(hit);
+    if (selected.length >= max) return selected;
+  }
+
+  return selected;
 }

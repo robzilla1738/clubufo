@@ -46,11 +46,13 @@ export async function hybridSearch(opts: {
        'chunk'::text AS source,
        c.id, c.document_id, c.page_id, c.page, c.content,
        NULL::int AS char_start, NULL::int AS char_end,
-       d.title, p.image_url, p.thumb_url
+       COALESCE(d.kicker, d.title) AS title, p.image_url, p.thumb_url
      FROM chunks c
      JOIN documents d ON d.id = c.document_id
      LEFT JOIN pages p ON p.id = c.page_id
-     WHERE d.status IN ('ready','partial') ${docFilter}
+     WHERE d.status IN ('ready','partial')
+       AND c.embedding IS NOT NULL
+       ${docFilter}
      ORDER BY c.embedding <=> $1::vector
      LIMIT ${perSignal}`,
     params,
@@ -61,25 +63,48 @@ export async function hybridSearch(opts: {
        'claim'::text AS source,
        cl.id, cl.document_id, cl.page_id, p.page, cl.text AS content,
        cl.char_start, cl.char_end,
-       d.title, p.image_url, p.thumb_url
+       COALESCE(d.kicker, d.title) AS title, p.image_url, p.thumb_url
      FROM claims cl
      JOIN documents d ON d.id = cl.document_id
      JOIN pages p ON p.id = cl.page_id
-     WHERE d.status IN ('ready','partial') ${docFilter.replace("c.document_id", "cl.document_id")}
+     WHERE d.status IN ('ready','partial')
+       AND cl.embedding IS NOT NULL
+       ${docFilter.replace("c.document_id", "cl.document_id")}
      ORDER BY cl.embedding <=> $1::vector
      LIMIT ${perSignal}`,
     params,
   )) as Array<Record<string, unknown>>;
 
   const queryClean = opts.query.trim();
-  const keywordRows: Array<Record<string, unknown>> =
+  const chunkKeywordRows: Array<Record<string, unknown>> =
+    queryClean.length > 1
+      ? ((await sql().query(
+          `SELECT
+             'chunk'::text AS source,
+             c.id, c.document_id, c.page_id, c.page, c.content,
+             NULL::int AS char_start, NULL::int AS char_end,
+             COALESCE(d.kicker, d.title) AS title, p.image_url, p.thumb_url,
+             ts_rank(to_tsvector('english', c.content), plainto_tsquery('english', $1)) AS rank
+           FROM chunks c
+           JOIN documents d ON d.id = c.document_id
+           LEFT JOIN pages p ON p.id = c.page_id
+           WHERE d.status IN ('ready','partial')
+             ${opts.documentId ? "AND c.document_id = $2::uuid" : ""}
+             AND to_tsvector('english', c.content) @@ plainto_tsquery('english', $1)
+           ORDER BY rank DESC
+           LIMIT ${perSignal}`,
+          opts.documentId ? [queryClean, opts.documentId] : [queryClean],
+        )) as Array<Record<string, unknown>>)
+      : [];
+
+  const claimKeywordRows: Array<Record<string, unknown>> =
     queryClean.length > 1
       ? ((await sql().query(
           `SELECT
              'claim'::text AS source,
              cl.id, cl.document_id, cl.page_id, p.page, cl.text AS content,
              cl.char_start, cl.char_end,
-             d.title, p.image_url, p.thumb_url,
+             COALESCE(d.kicker, d.title) AS title, p.image_url, p.thumb_url,
              ts_rank(to_tsvector('english', cl.text), plainto_tsquery('english', $1)) AS rank
            FROM claims cl
            JOIN documents d ON d.id = cl.document_id
@@ -128,7 +153,8 @@ export async function hybridSearch(opts: {
 
   add(chunkRows);
   add(claimRows);
-  add(keywordRows);
+  add(chunkKeywordRows);
+  add(claimKeywordRows);
 
   return Array.from(scores.values())
     .sort((a, b) => b.score - a.score)
