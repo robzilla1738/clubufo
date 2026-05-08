@@ -8,7 +8,7 @@ import { RefreshCw } from "lucide-react";
 import { Composer } from "@/components/chat/composer";
 import { MessageList } from "@/components/chat/messages";
 import { SourcesRail } from "@/components/chat/sources-rail";
-import { PreviewPane } from "@/components/chat/preview-pane";
+import { PreviewPane, MobilePreviewSheet } from "@/components/chat/preview-pane";
 import type { Source } from "@/components/chat/citation-chip";
 
 const STARTERS = [
@@ -63,7 +63,13 @@ export default function ChatClient() {
   const [input, setInput] = useState(() => (initialQ ? "" : initialQ));
   const [scopedDocTitle, setScopedDocTitle] = useState<string | null>(null);
   const [activeSource, setActiveSource] = useState<Source | null>(null);
+  const [mobileSource, setMobileSource] = useState<Source | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
+
+  const openSource = (s: Source) => {
+    setActiveSource(s);
+    setMobileSource(s);
+  };
 
   useEffect(() => {
     try {
@@ -146,7 +152,7 @@ export default function ChatClient() {
       <SourcesRail
         messages={messages}
         activeKey={activeKey}
-        onOpenSource={setActiveSource}
+        onOpenSource={openSource}
       />
 
       {/* CENTER: thread and composer */}
@@ -183,7 +189,7 @@ export default function ChatClient() {
               <MessageList
                 messages={messages}
                 status={status}
-                onOpenSource={setActiveSource}
+                onOpenSource={openSource}
               />
             </div>
           )}
@@ -213,8 +219,14 @@ export default function ChatClient() {
         </div>
       </section>
 
-      {/* RIGHT: preview */}
+      {/* RIGHT: preview (lg+) */}
       <PreviewPane source={activeSource} />
+
+      {/* Mobile preview sheet (<lg) */}
+      <MobilePreviewSheet
+        source={mobileSource}
+        onClose={() => setMobileSource(null)}
+      />
     </div>
   );
 }

@@ -111,8 +111,8 @@ export function ArchiveFilters({
                 ? initialTag
                 : undefined;
           return (
-            <div key={f.type} className="grid gap-2 text-[10px] sm:grid-cols-[72px_1fr] sm:items-start sm:gap-4">
-              <span className="flex min-h-10 shrink-0 items-center ufo-kicker text-muted-foreground/60">
+            <div key={f.type} className="grid gap-1.5 text-[10px] sm:grid-cols-[72px_1fr] sm:items-start sm:gap-4">
+              <span className="flex shrink-0 items-center ufo-kicker text-muted-foreground/60 sm:min-h-10">
                 {f.type === "type" ? "TYPE" : f.type === "tag" ? "TAG" : "AGENCY"}
               </span>
               <div className="flex flex-wrap gap-2">

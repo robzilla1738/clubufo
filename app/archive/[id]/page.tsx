@@ -187,20 +187,24 @@ export default async function DocumentPage(props: {
         <div className="max-w-4xl space-y-10 md:space-y-12">
           {pageRows.map((p) => (
             <article key={p.id} id={`p-${p.page}`} className="grid scroll-mt-20 gap-5 md:grid-cols-[160px_1fr]">
-              <div className="space-y-2">
-                <PageImageViewer
-                  page={p.page}
-                  thumbUrl={p.thumbUrl}
-                  imageUrl={p.imageUrl}
-                />
-                <p className="text-[10px] uppercase tracking-[0.18em] text-cyan tabular-nums">
-                  PAGE {p.page}
-                </p>
-                {p.documentType ? (
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                    {p.documentType}
+              <div className="grid grid-cols-[120px_1fr] items-start gap-4 sm:grid-cols-[140px_1fr] md:block md:gap-0">
+                <div>
+                  <PageImageViewer
+                    page={p.page}
+                    thumbUrl={p.thumbUrl}
+                    imageUrl={p.imageUrl}
+                  />
+                </div>
+                <div className="space-y-1.5 md:mt-2 md:space-y-2">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-cyan tabular-nums">
+                    PAGE {p.page}
                   </p>
-                ) : null}
+                  {p.documentType ? (
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                      {p.documentType}
+                    </p>
+                  ) : null}
+                </div>
               </div>
               <div className="space-y-3">
                 {p.pageSummary ? (
@@ -209,7 +213,7 @@ export default async function DocumentPage(props: {
                   </p>
                 ) : null}
                 {p.cleanedText ? (
-                  <pre className="whitespace-pre-wrap font-mono text-[12px] leading-[1.75] tracking-normal text-foreground/90">
+                  <pre className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] font-mono text-[12px] leading-[1.75] tracking-normal text-foreground/90">
                     {p.cleanedText}
                   </pre>
                 ) : null}

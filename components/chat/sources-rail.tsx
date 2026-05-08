@@ -36,10 +36,10 @@ export function SourcesRail({
     <aside
       className={cn(
         "shrink-0 border-b hairline bg-card/30 flex-col min-h-0 md:flex md:w-[280px] md:border-b-0 md:border-r xl:w-[320px]",
-        hasSources ? "flex max-h-48 md:max-h-none" : "hidden md:flex",
+        hasSources ? "flex max-h-[40dvh] md:max-h-none" : "hidden md:flex",
       )}
     >
-      <div className="flex items-center justify-between border-b hairline px-4 py-3 ufo-kicker">
+      <div className="flex items-center justify-between border-b hairline px-4 py-2.5 ufo-kicker">
         <span>SOURCES</span>
         <span className="text-foreground/60 tabular-nums">
           [{sources.length.toString().padStart(2, "0")}]
@@ -55,7 +55,7 @@ export function SourcesRail({
             OPEN ONE TO CHECK THE SOURCE.
           </div>
         ) : (
-          <ol className="flex gap-2 overflow-x-auto p-3 md:block md:space-y-2 md:overflow-x-visible">
+          <ol className="divide-y divide-border/60 md:block md:divide-y-0 md:space-y-2 md:divide-none md:p-3">
             {sources.map((s, i) => {
               const key = sourceKey(s);
               const active = activeKey === key;
@@ -65,33 +65,33 @@ export function SourcesRail({
                     type="button"
                     onClick={() => onOpenSource(s)}
                     className={cn(
-                      "group block w-[176px] shrink-0 overflow-hidden border text-left transition-[background-color,border-color,scale] active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 md:w-full",
+                      "group flex w-full items-stretch gap-3 px-3 py-2.5 text-left transition-[background-color,border-color,scale] active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 md:flex-col md:gap-0 md:overflow-hidden md:border md:p-0",
                       active
-                        ? "border-cyan bg-cyan/5"
-                        : "hairline hover:border-foreground/30",
+                        ? "bg-cyan/[0.06] md:border-cyan md:bg-cyan/5"
+                        : "hover:bg-foreground/[0.03] md:hairline md:hover:border-foreground/30",
                     )}
                   >
-                    <div className="relative w-full aspect-[3/4] bg-background/40 overflow-hidden border-b hairline">
+                    <div className="relative h-20 w-16 shrink-0 overflow-hidden border hairline bg-background/40 md:h-auto md:w-full md:aspect-[3/4] md:border-0 md:border-b">
                       {s.thumbUrl ? (
                         <Image
                           src={s.thumbUrl}
                           alt={`Page ${s.page}`}
                           fill
                           unoptimized
-                          sizes="320px"
+                          sizes="(min-width: 768px) 320px, 80px"
                           className={cn(
                             "object-cover object-top image-outline transition-opacity",
                             active ? "opacity-100" : "opacity-70 group-hover:opacity-100",
                           )}
                         />
                       ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-[10px] uppercase tracking-wider text-muted-foreground">
-                          [NO PREVIEW]
+                        <div className="absolute inset-0 flex items-center justify-center text-[9px] uppercase tracking-wider text-muted-foreground">
+                          [NONE]
                         </div>
                       )}
                       <span
                         className={cn(
-                          "absolute top-1.5 left-1.5 inline-flex h-[18px] min-w-[18px] items-center justify-center px-1 font-mono text-[10px]",
+                          "absolute top-1 left-1 inline-flex h-[16px] min-w-[16px] items-center justify-center px-0.5 font-mono text-[9px] md:top-1.5 md:left-1.5 md:h-[18px] md:min-w-[18px] md:px-1 md:text-[10px]",
                           active
                             ? "bg-cyan text-background"
                             : "bg-foreground text-background",
@@ -99,11 +99,11 @@ export function SourcesRail({
                       >
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      <span className="absolute bottom-1.5 right-1.5 font-mono text-[9px] tabular-nums bg-background/80 px-1 py-0.5">
+                      <span className="absolute bottom-1 right-1 font-mono text-[8px] tabular-nums bg-background/80 px-1 md:bottom-1.5 md:right-1.5 md:text-[9px] md:py-0.5">
                         P.{s.page}
                       </span>
                     </div>
-                    <div className="p-2.5 space-y-1">
+                    <div className="min-w-0 flex-1 space-y-1 md:p-2.5">
                       <p className="line-clamp-2 text-[10px] uppercase leading-snug tracking-[0.1em] text-foreground/90">
                         {s.documentTitle}
                       </p>

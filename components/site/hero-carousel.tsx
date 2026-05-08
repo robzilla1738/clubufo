@@ -42,14 +42,14 @@ export function HeroFileShelf({ files }: { files: HeroFile[] }) {
   return (
     <div className="ufo-page-pad">
       <div className="mx-auto max-w-6xl border-y hairline">
-        <div className="grid gap-px bg-border/70 md:grid-cols-5">
+        <div className="-mx-4 flex snap-x snap-mandatory gap-px overflow-x-auto bg-border/70 px-4 scrollbar-none md:mx-0 md:grid md:grid-cols-5 md:overflow-visible md:px-0">
           {visibleFiles.map((file, index) => {
             const absoluteIndex = (activePage * PAGE_SIZE + index) % files.length;
             return (
               <Link
                 key={`${activePage}-${file.id}`}
                 href={`/archive/${file.id}`}
-                className="group flex min-h-[340px] flex-col bg-background p-3 text-left transition-[background-color,scale] hover:bg-cyan/[0.035] active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                className="group flex w-[78%] shrink-0 snap-start flex-col bg-background p-3 text-left transition-[background-color,scale] hover:bg-cyan/[0.035] active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 sm:w-[60%] md:min-h-[340px] md:w-auto md:shrink"
               >
                 <div className="relative aspect-[3/4] overflow-hidden border hairline bg-card/30">
                   {file.coverImageUrl ? (
