@@ -1,5 +1,5 @@
 /**
- * Shared Google AI Studio (Generative Language API) provider for ClubUFO.
+ * Shared Google AI Studio (Generative Language API) provider for ChatUFO.
  * We use Gemini 3.1 Flash Lite preview for both per-page extraction and
  * document-level tagging.
  */

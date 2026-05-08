@@ -15,16 +15,27 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "CLUBUFO // ARCHIVE OF DECLASSIFIED UAP DOCUMENTS",
-    template: "%s · CLUBUFO",
+    default: "ChatUFO // ARCHIVE OF DECLASSIFIED UAP DOCUMENTS",
+    template: "%s · CHATUFO",
   },
   description:
-    "Public archive of declassified UAP / UFO documents — 119 files, 4,000+ pages, page-by-page transcribed and indexed. Browse the corpus or query it directly.",
-  metadataBase: new URL("https://clubufo.com"),
+    "Chat with the UAP archive. 119 declassified files, 4,000+ pages — page-by-page transcribed, claim-cited, and queryable. Every answer points back to its source page.",
+  metadataBase: new URL("https://chatufo.com"),
   openGraph: {
-    title: "CLUBUFO",
-    description: "Public archive of declassified UAP / UFO documents.",
+    title: "ChatUFO",
+    description: "Chat with the declassified UAP archive — answers cite their source page.",
     type: "website",
+    siteName: "ChatUFO",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ChatUFO",
+    description: "Chat with the declassified UAP archive.",
+  },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
   },
 };
 

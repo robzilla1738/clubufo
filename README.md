@@ -1,8 +1,8 @@
-# ClubUFO
+# ChatUFO
 
-A reading room for the unexplained — a curated archive of declassified UFO
-documents, sightings, and field reports. Browse the corpus, or chat with it via
-RAG over Neon Postgres + pgvector.
+Chat with the declassified UAP archive — every answer cites the exact page of
+the original PDF. Public reading room of UFO/UAP documents, sightings, and
+field reports, indexed page-by-page over Neon Postgres + pgvector.
 
 ## Stack
 

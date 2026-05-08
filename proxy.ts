@@ -31,7 +31,7 @@ function unauthorized() {
   return new NextResponse("Authentication required", {
     status: 401,
     headers: {
-      "WWW-Authenticate": 'Basic realm="ClubUFO admin", charset="UTF-8"',
+      "WWW-Authenticate": 'Basic realm="ChatUFO admin", charset="UTF-8"',
     },
   });
 }

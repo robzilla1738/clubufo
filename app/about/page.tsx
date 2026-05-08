@@ -19,7 +19,7 @@ export default function AboutPage() {
       <div className="px-6 lg:px-10 py-12 grid gap-10 md:grid-cols-2 max-w-5xl">
         <Section heading="MISSION">
           <p>
-            ClubUFO is a public reading room for declassified UAP / UFO
+            ChatUFO is a public reading room for declassified UAP / UFO
             documents — government memos, witness reports, mission debriefs,
             and FOIA releases — gathered into a single searchable archive.
           </p>

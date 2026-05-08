@@ -1,5 +1,5 @@
 /**
- * Bulk ingest a directory of PDFs into ClubUFO.
+ * Bulk ingest a directory of PDFs into ChatUFO.
  *
  * Usage:
  *   pnpm ingest <pdf-dir> [--doc-concurrency=2] [--page-concurrency=4]

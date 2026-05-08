@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCommandStore } from "./command-menu";
+import { AlienIcon } from "./alien-icon";
 import { cn } from "@/lib/utils";
 
 const NAV: Array<{ href: string; label: string }> = [
@@ -35,11 +36,14 @@ export function HudBar() {
         {/* LEFT — wordmark */}
         <Link
           href="/"
-          className="flex items-center gap-3 group w-fit"
-          aria-label="ClubUFO home"
+          className="flex items-center gap-2.5 group w-fit"
+          aria-label="ChatUFO home"
         >
-          <span className="size-1.5 rounded-full bg-cyan group-hover:shadow-[0_0_8px_var(--cyan)] transition-shadow" />
-          <span className="text-foreground tracking-[0.24em]">CLUBUFO</span>
+          <AlienIcon
+            size={18}
+            className="text-cyan transition-[filter] group-hover:[filter:drop-shadow(0_0_6px_var(--cyan))]"
+          />
+          <span className="text-foreground tracking-[0.24em]">CHATUFO</span>
           <span className="hidden md:inline text-muted-foreground/60">
             // ARCHIVE.001
           </span>
