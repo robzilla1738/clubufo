@@ -93,7 +93,7 @@ export default function ChatClient() {
   const activeKey = activeSource ? sourceKey(activeSource) : null;
 
   return (
-    <div className="flex-1 flex min-h-0">
+    <div className="flex h-[calc(100dvh-3.5rem-2.5rem)] min-h-0 overflow-hidden">
       {/* LEFT — sources */}
       <SourcesRail
         messages={messages}
