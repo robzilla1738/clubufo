@@ -121,22 +121,17 @@ export default async function ArchivePage(props: {
   return (
     <div className="flex-1 flex flex-col">
       {/* PAGE HEADER */}
-      <header className="px-6 lg:px-10 py-12 border-b hairline">
-        <div className="flex items-end justify-between gap-6 flex-wrap">
-          <div className="space-y-2">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-cyan">
-              &gt; ARCHIVE / RELEASE 01
-            </p>
-            <h1 className="text-3xl md:text-5xl uppercase tracking-tight leading-[1.05]">
-              FILE INDEX<span className="cursor-blink"></span>
-            </h1>
-          </div>
-          <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground space-y-1 text-right">
-            <div>SOURCE: U.S. GOVERNMENT // FOIA RELEASES</div>
-            <div>STATUS: <span className="text-foreground/80">PUBLIC</span></div>
-            <div>UPDATED: <span className="text-foreground/80">CONTINUOUS</span></div>
-          </div>
-        </div>
+      <header className="px-6 lg:px-10 pt-14 pb-10 border-b hairline">
+        <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+          &gt; <span className="text-cyan">ARCHIVE</span>
+          <span className="opacity-40 mx-2">/</span>
+          RELEASE 001
+          <span className="opacity-40 mx-2">/</span>
+          PUBLIC
+        </p>
+        <h1 className="mt-3 text-3xl md:text-5xl uppercase tracking-[0.02em] leading-[1.05]">
+          FILE INDEX
+        </h1>
       </header>
 
       <ArchiveFilters
@@ -190,67 +185,67 @@ function ArchiveTable({
   return (
     <table className="w-full text-[11px] uppercase tracking-[0.06em] border-collapse">
       <thead>
-        <tr className="text-cyan">
-          <th className="text-left font-normal pb-3 border-b hairline w-[42%]">
-            FILE
+        <tr>
+          <th className="text-left font-normal text-cyan border-y hairline py-3 px-4 w-[42%]">
+            <span className="tabular-nums tracking-[0.18em]">
+              {rows.length.toLocaleString()} FILES
+            </span>
           </th>
-          <th className="text-left font-normal pb-3 border-b hairline">
+          <th className="text-left font-normal text-cyan border-y hairline py-3 px-4">
             AGENCY
           </th>
-          <th className="text-left font-normal pb-3 border-b hairline">
+          <th className="text-left font-normal text-cyan border-y hairline py-3 px-4">
             INDEXED
           </th>
-          <th className="text-left font-normal pb-3 border-b hairline">
+          <th className="text-left font-normal text-cyan border-y hairline py-3 px-4">
             INCIDENT
           </th>
-          <th className="text-left font-normal pb-3 border-b hairline">
+          <th className="text-left font-normal text-cyan border-y hairline py-3 px-4">
             LOCATION
           </th>
-          <th className="text-right font-normal pb-3 border-b hairline">
-            TYPE ↑
+          <th className="text-right font-normal text-cyan border-y hairline py-3 px-4">
+            TYPE <span className="opacity-60">↑</span>
           </th>
         </tr>
       </thead>
       <tbody>
-        {rows.map((r, i) => {
-          return (
-            <tr
-              key={r.id}
-              className="border-b hairline hover:bg-cyan/[0.04] transition-colors"
-            >
-              <td className="py-4 pr-4 align-top">
-                <Link
-                  href={`/archive/${r.id}`}
-                  className="hover:text-cyan transition-colors leading-snug block"
-                >
-                  {r.kicker ?? r.title}
-                </Link>
-              </td>
-              <td className="py-4 pr-4 text-muted-foreground align-top">
-                <span data-bracket>{r.agency ?? "N/A"}</span>
-              </td>
-              <td className="py-4 pr-4 text-muted-foreground align-top tabular-nums">
-                <span data-bracket>{fmtDate(r.uploadedAt)}</span>
-              </td>
-              <td className="py-4 pr-4 text-muted-foreground align-top tabular-nums">
-                <span data-bracket>
-                  {r.incidentDate ? fmtDate(r.incidentDate) : "N/A"}
+        {rows.map((r) => (
+          <tr
+            key={r.id}
+            className="border-b hairline group hover:bg-cyan/[0.035] transition-colors"
+          >
+            <td className="py-4 px-4 align-top">
+              <Link
+                href={`/archive/${r.id}`}
+                className="group-hover:text-cyan transition-colors leading-[1.5] block"
+              >
+                {r.kicker ?? r.title}
+              </Link>
+            </td>
+            <td className="py-4 px-4 text-muted-foreground align-top">
+              <span data-bracket>{r.agency ?? "N/A"}</span>
+            </td>
+            <td className="py-4 px-4 text-muted-foreground align-top tabular-nums">
+              <span data-bracket>{fmtDate(r.uploadedAt)}</span>
+            </td>
+            <td className="py-4 px-4 text-muted-foreground align-top tabular-nums">
+              <span data-bracket>
+                {r.incidentDate ? fmtDate(r.incidentDate) : "N/A"}
+              </span>
+            </td>
+            <td className="py-4 px-4 text-muted-foreground align-top">
+              <span data-bracket>{r.incidentLocation ?? "N/A"}</span>
+            </td>
+            <td className="py-4 px-4 text-right text-muted-foreground align-top">
+              <span data-bracket>.PDF</span>
+              {r.pageCount ? (
+                <span className="ml-2 text-muted-foreground/50 tabular-nums">
+                  {r.pageCount}p
                 </span>
-              </td>
-              <td className="py-4 pr-4 text-muted-foreground align-top">
-                <span data-bracket>{r.incidentLocation ?? "N/A"}</span>
-              </td>
-              <td className="py-4 text-right text-muted-foreground align-top">
-                <span data-bracket>.PDF</span>
-                {r.pageCount ? (
-                  <span className="ml-2 text-muted-foreground/50 tabular-nums">
-                    {r.pageCount}p
-                  </span>
-                ) : null}
-              </td>
-            </tr>
-          );
-        })}
+              ) : null}
+            </td>
+          </tr>
+        ))}
       </tbody>
     </table>
   );

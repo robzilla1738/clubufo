@@ -103,34 +103,30 @@ export default function ChatClient() {
 
       {/* CENTER — thread + composer */}
       <section className="flex-1 flex flex-col min-h-0 min-w-0">
-        <div className="border-b hairline px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="text-[10px] uppercase tracking-[0.18em] text-cyan">
-              &gt; CHAT
-            </span>
-            {scopedDocTitle ? (
-              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground truncate">
-                / SCOPED: {scopedDocTitle}
-              </span>
-            ) : (
-              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                / FULL CORPUS
-              </span>
-            )}
-          </div>
-          <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground tabular-nums">
-            {status === "streaming" ? "[STREAMING]" : status === "submitted" ? "[QUERYING]" : "[READY]"}
+        <div className="border-b hairline h-10 px-6 flex items-center justify-between text-[10px] uppercase tracking-[0.2em]">
+          <span className="text-muted-foreground truncate">
+            <span className="text-cyan">&gt;</span>{" "}
+            {scopedDocTitle
+              ? `SCOPE / ${scopedDocTitle}`
+              : "SCOPE / FULL CORPUS"}
+          </span>
+          <span className="text-muted-foreground tabular-nums">
+            {status === "streaming"
+              ? "[STREAMING]"
+              : status === "submitted"
+                ? "[QUERYING]"
+                : "[READY]"}
           </span>
         </div>
 
         <div
           ref={scrollerRef}
-          className="flex-1 overflow-y-auto px-6 py-8 scrollbar-none"
+          className="flex-1 overflow-y-auto px-8 py-10 scrollbar-none"
         >
           {messages.length === 0 ? (
             <EmptyState onPick={(t) => setInput(t)} />
           ) : (
-            <div className="max-w-3xl">
+            <div className="max-w-2xl">
               <MessageList
                 messages={messages}
                 status={status}
@@ -139,14 +135,14 @@ export default function ChatClient() {
             </div>
           )}
           {error ? (
-            <div className="mt-4 max-w-3xl border border-destructive/40 bg-destructive/10 p-3 text-[11px] uppercase tracking-wider text-destructive">
+            <div className="mt-6 max-w-2xl border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-[11px] uppercase tracking-wider text-destructive">
               {error.message}
             </div>
           ) : null}
         </div>
 
-        <div className="border-t hairline px-6 py-4 space-y-2">
-          <div className="max-w-3xl">
+        <div className="border-t hairline px-8 py-5">
+          <div className="max-w-2xl">
             <Composer
               value={input}
               onChange={setInput}
@@ -154,13 +150,11 @@ export default function ChatClient() {
               onStop={stop}
               status={status}
               placeholder={
-                scopedDocTitle
-                  ? `QUERY THIS FILE…`
-                  : "QUERY THE ARCHIVE…"
+                scopedDocTitle ? "QUERY THIS FILE…" : "QUERY THE ARCHIVE…"
               }
             />
-            <p className="mt-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/60">
-              ANSWERS ARE GENERATED. VERIFY VIA CITED PAGE.
+            <p className="mt-2.5 text-[9px] uppercase tracking-[0.22em] text-muted-foreground/50">
+              GENERATED · VERIFY AGAINST CITED PAGE
             </p>
           </div>
         </div>
@@ -174,37 +168,41 @@ export default function ChatClient() {
 
 function EmptyState({ onPick }: { onPick: (t: string) => void }) {
   return (
-    <div className="max-w-3xl space-y-12">
-      <div className="space-y-3">
-        <p className="text-[10px] uppercase tracking-[0.18em] text-cyan">
-          &gt; INTERROGATE THE CORPUS
+    <div className="h-full flex flex-col justify-center max-w-2xl mx-auto py-12">
+      <div className="space-y-4">
+        <p className="text-[10px] uppercase tracking-[0.22em] text-cyan">
+          &gt; READY
         </p>
-        <h2 className="text-2xl md:text-3xl uppercase tracking-tight leading-[1.15]">
-          ASK A QUESTION.
+        <h2 className="text-2xl md:text-3xl uppercase tracking-[0.04em] leading-[1.2]">
+          QUERY THE CORPUS.
           <br />
-          <span className="text-muted-foreground">
-            EVERY ANSWER IS GROUNDED IN THE ARCHIVE.
+          <span className="text-muted-foreground/80">
+            EVERY ANSWER CITES ITS PAGE.
           </span>
         </h2>
       </div>
 
-      <div className="space-y-3">
-        <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-          &gt; SUGGESTED QUERIES
+      <div className="mt-12 space-y-3">
+        <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          SUGGESTED
         </p>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <ul className="divide-y divide-border/50 border-y hairline">
           {STARTERS.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => onPick(s)}
-              className="text-left p-4 border hairline hover:border-cyan hover:bg-cyan/5 transition-colors text-[11px] uppercase tracking-[0.1em] leading-[1.6]"
-            >
-              <span className="text-cyan mr-1.5">&gt;</span>
-              {s}
-            </button>
+            <li key={s}>
+              <button
+                type="button"
+                onClick={() => onPick(s)}
+                className="w-full text-left flex items-center gap-3 py-3.5 px-1 text-[12px] uppercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-colors group"
+              >
+                <span className="text-cyan/60 group-hover:text-cyan">&gt;</span>
+                <span className="flex-1">{s}</span>
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-cyan">
+                  ⏎
+                </span>
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </div>
   );

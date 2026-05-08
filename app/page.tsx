@@ -5,8 +5,6 @@ import { HeroCarousel, type CarouselSlide } from "@/components/site/hero-carouse
 
 export const dynamic = "force-dynamic";
 
-const TRUMP_QUOTE = `BASED ON THE TREMENDOUS INTEREST SHOWN, I WILL BE DIRECTING THE SECRETARY OF WAR, AND OTHER RELEVANT DEPARTMENTS AND AGENCIES, TO BEGIN THE PROCESS OF IDENTIFYING AND RELEASING GOVERNMENT FILES RELATED TO ALIEN AND EXTRATERRESTRIAL LIFE, UNIDENTIFIED AERIAL PHENOMENA (UAP), AND UNIDENTIFIED FLYING OBJECTS (UFOS), AND ANY AND ALL OTHER ANOMALOUS, UNEXPLAINED EVENTS RECORDED IN THE FILES OF THE U.S. GOVERNMENT.`;
-
 export default async function Home() {
   let total = 0;
   let pageCount = 0;
@@ -31,7 +29,6 @@ export default async function Home() {
       .from(schema.claims);
     claimCount = Number(cls ?? 0);
 
-    // Featured slides: first-page thumbnails of ready documents.
     const rows = await db
       .select({
         id: schema.pages.documentId,
@@ -51,7 +48,7 @@ export default async function Home() {
         ),
       )
       .orderBy(desc(schema.documents.uploadedAt))
-      .limit(24);
+      .limit(28);
 
     slides = rows.map((r) => ({
       id: r.id,
@@ -66,67 +63,44 @@ export default async function Home() {
 
   return (
     <div className="flex-1 flex flex-col">
-      {/* HERO */}
-      <section className="relative pt-12 md:pt-16 pb-16 md:pb-24 overflow-hidden">
-        <HeroCarousel slides={slides} />
-      </section>
-
-      {/* TRUMP QUOTE BAND */}
-      <section className="border-t hairline">
-        <div className="px-6 lg:px-10 py-8 grid grid-cols-12 gap-6">
-          <div className="col-span-12 md:col-span-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground space-y-1.5">
-            <div className="text-foreground/80">DONALD J. TRUMP</div>
-            <div>TRUTH SOCIAL</div>
+      {/* HERO — carousel takes the room, text is minimal */}
+      <section className="flex-1 flex flex-col justify-center min-h-[70vh] py-16 md:py-24">
+        <div className="px-6 lg:px-10 mb-10 md:mb-14 grid grid-cols-3 items-end gap-4 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          <div>
+            &gt; <span className="text-foreground/80">RELEASE 01</span>
           </div>
-          <div className="col-span-12 md:col-span-9 text-[11px] md:text-[12px] uppercase tracking-[0.12em] leading-[1.9] text-foreground/85">
-            {TRUMP_QUOTE}
+          <div className="text-center">
+            ARCHIVE OF DECLASSIFIED UAP RECORDS
           </div>
-          <div className="col-span-12 md:col-span-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground text-right tabular-nums">
-            [02 19 26]
+          <div className="text-right tabular-nums">
+            <Stat value={total || 119} label="FILES" />
+            <span className="mx-2 opacity-30">·</span>
+            <Stat value={pageCount} label="PAGES" />
+            <span className="mx-2 opacity-30">·</span>
+            <Stat value={claimCount} label="CLAIMS" />
           </div>
         </div>
-      </section>
 
-      {/* CTA + STATS */}
-      <section className="border-t hairline">
-        <div className="px-6 lg:px-10 py-12 md:py-20 grid gap-10 md:grid-cols-2 items-center">
-          <div className="space-y-6">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-cyan">
-              &gt; INTERROGATE THE CORPUS
-            </p>
-            <h1 className="text-3xl md:text-5xl uppercase tracking-tight leading-[1.05]">
-              ASK A QUESTION.
-              <br />
-              READ THE SOURCE.
-              <br />
-              <span className="text-cyan">TRUST THE CITATION.</span>
-            </h1>
-            <p className="text-[12px] md:text-[13px] uppercase tracking-[0.08em] leading-[1.8] text-muted-foreground max-w-md">
-              Every answer is grounded in the archive. Each citation is
-              clickable and opens the exact page of the original PDF, with the
-              quoted span highlighted.
-            </p>
-            <div className="flex gap-3 pt-2">
-              <Link
-                href="/chat"
-                className="inline-flex items-center gap-3 px-5 py-3 border border-cyan text-cyan hover:bg-cyan hover:text-black transition-colors text-[11px] uppercase tracking-[0.2em]"
-              >
-                &gt; OPEN TERMINAL <span className="cursor-blink"></span>
-              </Link>
-              <Link
-                href="/archive"
-                className="inline-flex items-center gap-3 px-5 py-3 border hairline text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors text-[11px] uppercase tracking-[0.2em]"
-              >
-                BROWSE [161] FILES
-              </Link>
-            </div>
-          </div>
+        <HeroCarousel slides={slides} />
 
-          {/* Stats panel */}
-          <div className="grid grid-cols-3 gap-4 border hairline p-6">
-            <Stat label="DOCUMENTS" value={total || 161} />
-            <Stat label="PAGES INDEXED" value={pageCount} />
-            <Stat label="CLAIMS EXTRACTED" value={claimCount} />
+        <div className="mt-16 md:mt-20 text-center px-6">
+          <h1 className="text-2xl md:text-3xl uppercase tracking-[0.06em]">
+            <span className="text-muted-foreground">QUERY THE CORPUS.</span>{" "}
+            <span className="text-cyan">READ THE SOURCE.</span>
+          </h1>
+          <div className="mt-8 flex items-center justify-center gap-3">
+            <Link
+              href="/chat"
+              className="inline-flex items-center gap-2 px-6 py-3 border border-cyan text-cyan hover:bg-cyan hover:text-black transition-colors text-[11px] uppercase tracking-[0.22em]"
+            >
+              &gt; OPEN TERMINAL
+            </Link>
+            <Link
+              href="/archive"
+              className="inline-flex items-center gap-2 px-6 py-3 border hairline text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors text-[11px] uppercase tracking-[0.22em]"
+            >
+              BROWSE ARCHIVE
+            </Link>
           </div>
         </div>
       </section>
@@ -134,15 +108,13 @@ export default async function Home() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ value, label }: { value: number; label: string }) {
   return (
-    <div className="space-y-2 border-l hairline pl-4 first:border-l-0 first:pl-0 md:border-l md:pl-4">
-      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-        {label}
-      </div>
-      <div className="text-3xl md:text-4xl tabular-nums text-cyan">
-        {value.toLocaleString()}
-      </div>
-    </div>
+    <span>
+      <span className="text-foreground/80">
+        [{value.toLocaleString()}]
+      </span>{" "}
+      {label}
+    </span>
   );
 }

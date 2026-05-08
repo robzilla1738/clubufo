@@ -15,7 +15,7 @@ export function MessageList({
 }) {
   if (messages.length === 0) return null;
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-10">
       {messages.map((m) => (
         <Message key={m.id} message={m} onOpenSource={onOpenSource} />
       ))}
@@ -40,24 +40,24 @@ function Message({
     ((message as { metadata?: { sources?: Source[] } }).metadata?.sources ?? []) as Source[];
 
   return (
-    <div className="flex flex-col gap-2">
+    <article className="flex flex-col gap-2.5 group">
       <div
         className={cn(
-          "text-[10px] uppercase tracking-[0.18em] flex items-center gap-2",
-          isUser ? "text-muted-foreground" : "text-cyan",
+          "text-[9px] uppercase tracking-[0.24em]",
+          isUser ? "text-muted-foreground/70" : "text-cyan",
         )}
       >
-        <span>{isUser ? "[USER] >" : "[LIBRARIAN] >"}</span>
+        {isUser ? "USER" : "LIBRARIAN"}
       </div>
       <div
         className={cn(
-          "text-[14px] leading-[1.7] whitespace-pre-wrap",
-          isUser ? "text-foreground/85" : "text-foreground",
+          "text-[14px] leading-[1.75] whitespace-pre-wrap",
+          isUser ? "text-foreground/80" : "text-foreground",
         )}
       >
         {renderWithCitations(text, sources, onOpenSource)}
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -95,16 +95,18 @@ function renderWithCitations(
 
 function ThinkingRow() {
   return (
-    <div className="flex flex-col gap-2">
-      <div className="text-[10px] uppercase tracking-[0.18em] text-cyan">
-        [LIBRARIAN] &gt;
+    <article className="flex flex-col gap-2.5">
+      <div className="text-[9px] uppercase tracking-[0.24em] text-cyan">
+        LIBRARIAN
       </div>
-      <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-        <span className="size-1 bg-cyan inline-block animate-pulse" />
-        <span className="size-1 bg-cyan inline-block animate-pulse [animation-delay:200ms]" />
-        <span className="size-1 bg-cyan inline-block animate-pulse [animation-delay:400ms]" />
-        <span className="ml-2">SCANNING ARCHIVE…</span>
+      <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+        <span className="flex gap-1">
+          <span className="size-1 bg-cyan inline-block animate-pulse" />
+          <span className="size-1 bg-cyan inline-block animate-pulse [animation-delay:200ms]" />
+          <span className="size-1 bg-cyan inline-block animate-pulse [animation-delay:400ms]" />
+        </span>
+        <span>SCANNING ARCHIVE</span>
       </div>
-    </div>
+    </article>
   );
 }

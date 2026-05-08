@@ -57,23 +57,22 @@ export function ArchiveFilters({
 
   return (
     <div className="border-b hairline">
-      <div className="px-6 lg:px-10 py-5 space-y-4">
-        <div className="flex items-end justify-between gap-6">
-          <div className="space-y-2 flex-1 max-w-md">
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              [{total.toString().padStart(3, "0")}] FILES MATCH
-            </div>
-            <div className="border hairline bg-card/40 focus-within:border-cyan flex items-center">
-              <span className="pl-3 text-cyan text-[12px]">&gt;</span>
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="FILTER FILES…"
-                className="block w-full bg-transparent border-0 outline-none px-2 py-2 text-[12px] uppercase tracking-[0.08em] placeholder:text-muted-foreground/50"
-              />
-            </div>
+      <div className="px-6 lg:px-10 pt-5 pb-4 space-y-4">
+        <div className="flex items-center justify-between gap-6">
+          <div className="flex-1 max-w-md border-b hairline focus-within:border-cyan flex items-center transition-colors">
+            <span className="text-cyan text-[12px] mr-2">&gt;</span>
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="FILTER…"
+              className="block w-full bg-transparent border-0 outline-none py-2 text-[12px] uppercase tracking-[0.08em] placeholder:text-muted-foreground/40"
+            />
+            <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 tabular-nums shrink-0 ml-3">
+              [{total.toString().padStart(3, "0")}]
+            </span>
           </div>
-          <div className="flex items-center gap-1 border hairline">
+          <div className="flex items-center gap-5 text-[10px] uppercase tracking-[0.2em]">
+            <span className="text-muted-foreground/60">SORT</span>
             {[
               { value: "recent", label: "RECENT" },
               { value: "title", label: "A→Z" },
@@ -86,30 +85,35 @@ export function ArchiveFilters({
                   type="button"
                   onClick={() => setSort(s.value)}
                   className={cn(
-                    "px-3 h-8 text-[10px] uppercase tracking-[0.16em] transition-colors",
+                    "transition-colors",
                     active
-                      ? "bg-foreground text-background"
+                      ? "text-cyan"
                       : "text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  {s.label}
+                  {active ? `>${s.label}` : s.label}
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Filter rows */}
+        {/* Faceted filter rows */}
         {facets.map((f) => {
           if (f.values.length === 0) return null;
-          const current = f.type === "type" ? initialType : initialTag;
+          const current =
+            f.type === "type"
+              ? initialType
+              : f.type === "tag"
+                ? initialTag
+                : undefined;
           return (
-            <div key={f.type} className="flex items-baseline gap-3">
-              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground shrink-0 w-16">
-                {f.type === "type" ? "TYPE:" : f.type === "tag" ? "TAG:" : "AGENCY:"}
+            <div key={f.type} className="flex items-baseline gap-4 text-[10px]">
+              <span className="uppercase tracking-[0.22em] text-muted-foreground/60 shrink-0 w-14">
+                {f.type === "type" ? "TYPE" : f.type === "tag" ? "TAG" : "AGENCY"}
               </span>
-              <div className="flex flex-wrap gap-1.5">
-                {f.values.slice(0, 16).map((v) => {
+              <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                {f.values.slice(0, 18).map((v) => {
                   const active = current === v.value;
                   return (
                     <button
@@ -117,14 +121,15 @@ export function ArchiveFilters({
                       type="button"
                       onClick={() => toggle(f.type, v.value)}
                       className={cn(
-                        "px-2 h-6 border text-[10px] uppercase tracking-[0.12em] transition-colors flex items-center gap-1.5",
+                        "uppercase tracking-[0.14em] transition-colors flex items-center gap-1",
                         active
-                          ? "border-cyan text-cyan bg-cyan/5"
-                          : "hairline text-muted-foreground hover:text-foreground hover:border-foreground/30",
+                          ? "text-cyan"
+                          : "text-muted-foreground hover:text-foreground",
                       )}
                     >
-                      {v.value}
-                      <span className="text-muted-foreground/60 tabular-nums">
+                      {active ? <span>&gt;</span> : null}
+                      <span>{v.value}</span>
+                      <span className="text-muted-foreground/40 tabular-nums">
                         [{v.count}]
                       </span>
                     </button>
