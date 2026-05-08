@@ -4,6 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { RefreshCw } from "lucide-react";
 import { Composer } from "@/components/chat/composer";
 import { MessageList } from "@/components/chat/messages";
 import { SourcesRail } from "@/components/chat/sources-rail";
@@ -21,6 +22,10 @@ export default function ChatClient() {
   const params = useSearchParams();
   const docId = params.get("doc") ?? undefined;
   const initialQ = params.get("q") ?? "";
+  const sessionKey = useMemo(
+    () => `chatufo:chat:${docId ?? "full-archive"}`,
+    [docId],
+  );
 
   const transport = useMemo(
     () =>
@@ -31,14 +36,49 @@ export default function ChatClient() {
     [docId],
   );
 
-  const { messages, sendMessage, status, stop, error } = useChat({
+  const [initialMessages] = useState<UIMessage[]>(() => {
+    if (typeof window === "undefined" || initialQ) return [];
+    try {
+      const stored = window.sessionStorage.getItem(sessionKey);
+      const parsed = stored ? JSON.parse(stored) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const {
+    messages,
+    sendMessage,
+    regenerate,
+    status,
+    stop,
+    error,
+    clearError,
+  } = useChat({
     transport,
+    messages: initialMessages,
   });
 
   const [input, setInput] = useState(() => (initialQ ? "" : initialQ));
   const [scopedDocTitle, setScopedDocTitle] = useState<string | null>(null);
   const [activeSource, setActiveSource] = useState<Source | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      if (messages.length === 0) {
+        window.sessionStorage.removeItem(sessionKey);
+        return;
+      }
+      window.sessionStorage.setItem(
+        sessionKey,
+        JSON.stringify(messages.slice(-24)),
+      );
+    } catch {
+      // Session restore is a convenience; chat still works without storage.
+    }
+  }, [messages, sessionKey]);
 
   // Resolve scoped doc title.
   useEffect(() => {
@@ -87,6 +127,17 @@ export default function ChatClient() {
     setActiveSource(null); // clear; auto-select new on response
   };
 
+  const canRefresh =
+    (status === "ready" || status === "error") &&
+    messages.some((m) => m.role === "assistant");
+
+  const refreshAnswer = async () => {
+    if (!canRefresh) return;
+    clearError();
+    setActiveSource(null);
+    await regenerate();
+  };
+
   const activeKey = activeSource ? sourceKey(activeSource) : null;
 
   return (
@@ -107,13 +158,18 @@ export default function ChatClient() {
               ? `SCOPE / ${scopedDocTitle}`
               : "SCOPE / FULL ARCHIVE"}
           </span>
-          <span className="text-muted-foreground tabular-nums">
-            {status === "streaming"
-              ? "[STREAMING]"
-              : status === "submitted"
-                ? "[SEARCHING]"
-                : "[READY]"}
-          </span>
+          <div className="flex shrink-0 items-center">
+            <button
+              type="button"
+              onClick={() => void refreshAnswer()}
+              disabled={!canRefresh}
+              className="ufo-action min-h-8 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-30"
+              aria-label="Refresh latest answer"
+            >
+              <RefreshCw aria-hidden="true" className="size-3" strokeWidth={1.5} />
+              REFRESH
+            </button>
+          </div>
         </div>
 
         <div

@@ -16,7 +16,7 @@
 import "../lib/env-cli";
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, basename } from "node:path";
+import { join } from "node:path";
 import { createHash } from "node:crypto";
 
 type Args = { dir: string; dryRun: boolean };

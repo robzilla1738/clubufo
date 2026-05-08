@@ -1,27 +1,27 @@
 import Link from "next/link";
 import { db, schema } from "@/lib/db/client";
-import { desc, eq, count, and, isNotNull, ne, inArray } from "drizzle-orm";
+import { eq, count, and, isNotNull, inArray } from "drizzle-orm";
 import { HeroFileShelf, type HeroFile } from "@/components/site/hero-carousel";
 
 export const dynamic = "force-dynamic";
 
 const HOME_PREVIEW_LIMIT = 15;
-const HOME_PREVIEW_PREFIXES = [
-  "FBI-UAP-S23, WITNESS INTERVIEW",
-  "FBI-UAP-S23, WITNESS DEBRIEF",
-  "USPER-UAP-2025, MISSION REPORT",
-  "STATE-DEPT-CABLE, MEXICO POLITICAL BLOTTER",
-  "STATE-DEPT-UAP-CABLE, ASHGABAT",
-  "DOS-UAP-2001, DIPLOMATIC CABLE",
-  "STATE-DEPT-UAP-CABLE, KAZAKHSTAN",
-  "DOS-UAP-C1, CABLE REPORT",
-  "NASA-UAP-D7",
-  "NASA-UAP-D6",
-  "NASA-UAP-D5",
-  "NASA-UAP-D4",
-  "NASA-UAP-D3",
-  "NASA-UAP-D2",
-  "NASA-UAP-D1",
+const HOME_PREVIEW_DOCUMENT_IDS = [
+  "f730f25e-db96-4ce2-a903-af46e4942414",
+  "47e3e033-52a3-484c-841b-994a8c15c07b",
+  "f9df882e-3d0a-476d-9efd-b84acd91c224",
+  "6e989482-dc59-44a4-8a5c-8a9eb55d4d70",
+  "db5d28bd-c38e-4695-88bf-857f69eece65",
+  "fbb2b6f9-2b9e-4d49-a1fb-363f1a155822",
+  "c280c72c-dda9-48a9-8247-9e17ea7afdba",
+  "0f2eba29-fa4a-44bc-b0e5-4763ab48d039",
+  "3e68522e-8553-416c-bc9d-4f644483caea",
+  "28a483e0-bfeb-4712-8184-aff37b5c3a74",
+  "b72c759c-c383-4aa2-8a34-690ae963d6b2",
+  "a5ae13ed-75f5-4db1-9f65-20b0c46b3758",
+  "6c936ed4-4de8-453c-8328-d6fd37760de0",
+  "80c68a3e-7806-4e23-bd56-75c1c2fa3423",
+  "e87570a7-f7ab-4118-a05d-0970b942b2a5",
 ];
 
 export default async function Home() {
@@ -67,23 +67,17 @@ export default async function Home() {
         and(
           eq(schema.documents.status, "ready"),
           eq(schema.documents.mediaKind, "pdf"),
-          ne(schema.documents.documentType, "PHOTOGRAPH"),
+          inArray(schema.documents.id, HOME_PREVIEW_DOCUMENT_IDS),
           eq(schema.pages.status, "extracted"),
           eq(schema.pages.page, 1),
           isNotNull(schema.documents.coverImageUrl),
         ),
       )
-      .orderBy(desc(schema.documents.uploadedAt))
-      .limit(200);
+      .limit(HOME_PREVIEW_DOCUMENT_IDS.length);
 
-    const rowsByPrefix = new Map<string, (typeof rows)[number]>();
-    for (const row of rows) {
-      const title = (row.title || row.fallbackTitle).toUpperCase();
-      const prefix = HOME_PREVIEW_PREFIXES.find((p) => title.startsWith(p));
-      if (prefix && !rowsByPrefix.has(prefix)) rowsByPrefix.set(prefix, row);
-    }
+    const rowsById = new Map(rows.map((row) => [row.id, row]));
 
-    files = HOME_PREVIEW_PREFIXES.map((prefix) => rowsByPrefix.get(prefix))
+    files = HOME_PREVIEW_DOCUMENT_IDS.map((id) => rowsById.get(id))
       .filter((row): row is (typeof rows)[number] => Boolean(row))
       .slice(0, HOME_PREVIEW_LIMIT)
       .map((r) => ({
