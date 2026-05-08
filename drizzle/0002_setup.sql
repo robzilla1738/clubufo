@@ -1,8 +1,6 @@
--- Enables pgvector + adds hand-tuned indexes that drizzle-kit can't generate.
+-- Hand-tuned indexes + triggers that drizzle-kit can't generate.
+-- Extensions live in 0000_extensions.sql; this file runs after the schema is in place.
 -- Idempotent — safe to run repeatedly.
-
-CREATE EXTENSION IF NOT EXISTS vector;
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- Maintain documents.search_tsv off title + summary + tags.
 CREATE OR REPLACE FUNCTION documents_search_tsv_trigger() RETURNS trigger AS $$

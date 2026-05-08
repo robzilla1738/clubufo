@@ -5,9 +5,7 @@
  *   pnpm ingest <pdf-dir> [--doc-concurrency=2] [--page-concurrency=4]
  *                         [--limit=N] [--tag=foo,bar]
  */
-import { config } from "dotenv";
-config({ path: ".env.local" });
-config({ path: ".env" });
+import "../lib/env-cli";
 
 import { readdirSync, statSync } from "node:fs";
 import { join, basename } from "node:path";

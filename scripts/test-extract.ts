@@ -1,6 +1,5 @@
 /** One-off sanity check: render the first page of a small PDF and run Gemini against it. */
-import { config } from "dotenv";
-config({ path: ".env.local" });
+import "../lib/env-cli";
 
 import { renderPdfPages, pdfPageCount } from "../lib/ingest/render";
 import { extractPageFromImage } from "../lib/ai/extract";

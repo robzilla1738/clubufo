@@ -8,6 +8,13 @@
       "when": 1778250991414,
       "tag": "0000_goofy_riptide",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778252207753,
+      "tag": "0001_warm_photon",
+      "breakpoints": true
     }
   ]
 }

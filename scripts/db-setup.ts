@@ -4,9 +4,7 @@
  *
  * Usage:  pnpm db:setup
  */
-import { config } from "dotenv";
-config({ path: ".env.local" });
-config({ path: ".env" });
+import "../lib/env-cli";
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -17,6 +15,7 @@ if (!url) {
   console.error("DATABASE_URL is not set. Add it to .env.local first.");
   process.exit(1);
 }
+console.log(`Using endpoint: ${url.match(/@([^/]+)/)?.[1]} db=${url.match(/\/([^?]+)\?/)?.[1] ?? "?"}`);
 
 const sql = neon(url);
 
@@ -40,11 +39,22 @@ async function main() {
     for (const stmt of stmts) {
       const head = stmt.slice(0, 80).replace(/\s+/g, " ");
       try {
-        await sql.unsafe(stmt);
+        await sql.query(stmt);
         console.log(`  ✓ ${head}…`);
       } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        // Tolerate the typical "already exists" / "duplicate object" cases —
+        // these migrations are meant to be idempotent.
+        if (
+          /already exists|duplicate object|duplicate column|duplicate key/i.test(
+            msg,
+          )
+        ) {
+          console.log(`  • skip (exists): ${head}…`);
+          continue;
+        }
         console.error(`  ✗ ${head}…`);
-        console.error(e);
+        console.error(msg);
         throw e;
       }
     }

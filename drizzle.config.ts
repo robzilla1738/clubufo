@@ -3,6 +3,7 @@ import { config } from "dotenv";
 
 config({ path: ".env.local" });
 config({ path: ".env" });
+delete process.env.VERCEL_OIDC_TOKEN;
 
 export default defineConfig({
   schema: "./lib/db/schema.ts",

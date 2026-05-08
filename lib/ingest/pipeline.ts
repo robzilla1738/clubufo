@@ -1,11 +1,12 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { basename } from "node:path";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, inArray, sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db/client";
 import { renderPdfPages, pdfPageCount } from "./render";
 import { storePageImage } from "./storage";
 import { extractPageFromImage, type ExtractedPage } from "@/lib/ai/extract";
+import { generateDocumentMetadata } from "@/lib/ai/tag";
 import { chunkPages } from "./chunk";
 import { embedBatch } from "@/lib/ai/embed";
 
@@ -42,7 +43,7 @@ export async function ingestPdfFile(opts: IngestOptions): Promise<IngestSummary>
   const sha256 = createHash("sha256").update(buffer).digest("hex");
   const fileSize = buffer.byteLength;
 
-  // Idempotency.
+  // Idempotency: skip fully-ready docs, resume partial ones.
   const existing = await db
     .select({ id: schema.documents.id, status: schema.documents.status })
     .from(schema.documents)
@@ -60,6 +61,9 @@ export async function ingestPdfFile(opts: IngestOptions): Promise<IngestSummary>
       status: "ready",
       durationMs: Date.now() - t0,
     };
+  }
+  if (existing[0]) {
+    log(`resuming ingest for ${existing[0].id} (was ${existing[0].status})`);
   }
 
   const totalPages = await pdfPageCount(opts.pdfPath);
@@ -95,15 +99,66 @@ export async function ingestPdfFile(opts: IngestOptions): Promise<IngestSummary>
         })
         .returning();
 
-  // Wipe any prior pages (cascades chunks + claims) for re-runs.
-  await db.delete(schema.pages).where(eq(schema.pages.documentId, doc.id));
+  // Resume support: keep pages that are already extracted, drop only failed/pending so
+  // they can be retried. This makes the pipeline crash-safe under API hiccups.
+  const existingPages = await db
+    .select({
+      id: schema.pages.id,
+      page: schema.pages.page,
+      status: schema.pages.status,
+    })
+    .from(schema.pages)
+    .where(eq(schema.pages.documentId, doc.id));
 
-  let pagesExtracted = 0;
+  const skipPages = new Set(
+    existingPages
+      .filter((p) => p.status === "extracted")
+      .map((p) => p.page),
+  );
+  const retryPageIds = existingPages
+    .filter((p) => p.status !== "extracted")
+    .map((p) => p.id);
+  if (retryPageIds.length > 0) {
+    // Drop failed/partial rows so we re-insert cleanly.
+    await db
+      .delete(schema.pages)
+      .where(inArray(schema.pages.id, retryPageIds));
+  }
+  if (skipPages.size > 0) {
+    log(`  resuming — skipping ${skipPages.size} already-extracted pages`);
+  }
+
+  // Carry forward already-extracted page count if we're resuming.
+  let pagesExtracted = skipPages.size;
   let pagesFailed = 0;
   let chunkCount = 0;
   let claimCount = 0;
   let coverImageUrl: string | null = null;
   const pageSummaries: Array<{ page: number; summary: string }> = [];
+
+  // Bring previously-extracted page summaries + cover into memory so the
+  // doc-level summary regenerates correctly on resume.
+  if (skipPages.size > 0) {
+    const prior = await db
+      .select({
+        page: schema.pages.page,
+        pageSummary: schema.pages.pageSummary,
+        thumbUrl: schema.pages.thumbUrl,
+      })
+      .from(schema.pages)
+      .where(
+        and(
+          eq(schema.pages.documentId, doc.id),
+          eq(schema.pages.status, "extracted"),
+        ),
+      );
+    for (const p of prior) {
+      if (p.pageSummary) {
+        pageSummaries.push({ page: p.page, summary: p.pageSummary });
+      }
+      if (p.page === 1 && p.thumbUrl) coverImageUrl = p.thumbUrl;
+    }
+  }
 
   // Bounded-concurrency worker pulling from a streaming render queue.
   const renderQueue: Array<{
@@ -114,10 +169,11 @@ export async function ingestPdfFile(opts: IngestOptions): Promise<IngestSummary>
   let renderDone = false;
   const renderError: { err?: unknown } = {};
 
-  // Producer
+  // Producer — skip already-extracted pages.
   (async () => {
     try {
       for await (const p of renderPdfPages(opts.pdfPath, { dpi: 200 })) {
+        if (skipPages.has(p.page)) continue;
         renderQueue.push(p);
       }
     } catch (err) {
@@ -286,15 +342,46 @@ export async function ingestPdfFile(opts: IngestOptions): Promise<IngestSummary>
         ? "ready"
         : "partial";
 
-  // Document-level summary from the page summaries (cheap one-shot LLM).
-  let docSummary: string | null = null;
-  if (pageSummaries.length > 0) {
-    const joined = pageSummaries
-      .sort((a, b) => a.page - b.page)
-      .slice(0, 60) // cap for prompt size
-      .map((p) => `p.${p.page}: ${p.summary}`)
-      .join("\n");
-    docSummary = joined.slice(0, 1200); // keep simple — first ~60 page summaries truncated
+  // Gemini metadata pass — kicker, agency, type, dates, location, tags.
+  // Skipped if extraction failed or there's no text to work with.
+  let metadataUpdate: Partial<typeof schema.documents.$inferInsert> = {};
+  if (status !== "failed" && pageSummaries.length > 0) {
+    try {
+      const sampleRows = await db
+        .select({ cleanedText: schema.pages.cleanedText })
+        .from(schema.pages)
+        .where(
+          and(
+            eq(schema.pages.documentId, doc.id),
+            eq(schema.pages.status, "extracted"),
+          ),
+        )
+        .limit(3);
+      const meta = await generateDocumentMetadata({
+        filename,
+        fallbackTitle: title,
+        pageSummaries,
+        sampleTexts: sampleRows.map((r) => r.cleanedText ?? "").filter(Boolean),
+      });
+      metadataUpdate = {
+        kicker: meta.kicker,
+        agency: nullIfEmpty(meta.agency),
+        documentType: meta.documentType,
+        incidentDate: normalizeDate(meta.incidentDate),
+        incidentLocation: nullIfEmpty(meta.incidentLocation),
+        summary: meta.summary,
+        tags: [...new Set([...(opts.tags ?? []), ...meta.tags])],
+      };
+      log(`  ◇ tagged: ${meta.kicker} [${meta.tags.join(", ")}]`);
+    } catch (err) {
+      log(
+        `  ⚠ metadata pass failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      // Fall back to a plain summary so the doc still has SOMETHING.
+      metadataUpdate = {
+        summary: pageSummaries[0]?.summary ?? null,
+      };
+    }
   }
 
   await db
@@ -303,10 +390,10 @@ export async function ingestPdfFile(opts: IngestOptions): Promise<IngestSummary>
       status,
       pagesProcessed: pagesExtracted,
       pagesFailed,
-      summary: docSummary,
       coverImageUrl,
       processedAt: new Date(),
       error: status === "failed" ? "All pages failed extraction" : null,
+      ...metadataUpdate,
     })
     .where(eq(schema.documents.id, doc.id));
 
@@ -332,14 +419,28 @@ function deriveTitle(filename: string): string {
     .trim();
 }
 
-function normalizeDate(input: string | null): string | null {
+function normalizeDate(input: string | null | undefined): string | null {
   if (!input) return null;
-  // Already ISO?
-  if (/^\d{4}-\d{2}-\d{2}$/.test(input)) return input;
-  const parsed = Date.parse(input);
+  const trimmed = input.trim();
+  // Reject obvious sentinel values the model may emit.
+  if (/^(unknown|n\/a|none|null|undated)$/i.test(trimmed)) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+  const parsed = Date.parse(trimmed);
   if (Number.isNaN(parsed)) return null;
   const d = new Date(parsed);
   return d.toISOString().slice(0, 10);
+}
+
+function nullIfEmpty(input: string | null | undefined): string | null {
+  if (!input) return null;
+  const trimmed = input.trim();
+  if (
+    /^(unknown|unknown\s+location|n\/a|none|null|undated|undisclosed)$/i.test(
+      trimmed,
+    )
+  )
+    return null;
+  return trimmed.length === 0 ? null : trimmed;
 }
 
 /** Convenience for the admin upload route. */
