@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
   description:
     "Ask questions across declassified UAP files. Every answer cites the page it came from.",
-  metadataBase: new URL("https://chatufo.com"),
+  metadataBase: new URL("https://chatufo.space"),
   openGraph: {
     title: "ChatUFO",
     description: "Ask declassified UAP files and check every answer against its source page.",

@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { db, schema } from "@/lib/db/client";
 import { inArray, desc } from "drizzle-orm";
 
-const SITE = "https://chatufo.com";
+const SITE = "https://chatufo.space";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [

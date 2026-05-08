@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin", "/api"],
       },
     ],
-    sitemap: "https://chatufo.com/sitemap.xml",
+    sitemap: "https://chatufo.space/sitemap.xml",
   };
 }
