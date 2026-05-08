@@ -90,7 +90,13 @@ export const documents = pgTable(
     searchTsv: text("search_tsv"),
   },
   (t) => [
-    uniqueIndex("documents_sha256_uniq").on(t.sha256),
+    // Note: sha256 was unique, but war.gov publishes the same content under
+    // multiple numbered filenames in the same release. We keep the column as
+    // a normal index so we can still look up "have we seen this content?",
+    // but allow alias rows so the archive count matches their published file
+    // count.
+    index("documents_sha256_idx").on(t.sha256),
+    uniqueIndex("documents_filename_uniq").on(t.filename),
     index("documents_uploaded_at_idx").on(t.uploadedAt),
     index("documents_status_idx").on(t.status),
     index("documents_tags_gin").using("gin", t.tags),

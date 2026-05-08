@@ -1,11 +1,28 @@
 import Link from "next/link";
 import { db, schema } from "@/lib/db/client";
-import { desc, eq, count, and, isNotNull, ne, sql } from "drizzle-orm";
+import { desc, eq, count, and, isNotNull, ne } from "drizzle-orm";
 import { HeroFileShelf, type HeroFile } from "@/components/site/hero-carousel";
 
 export const dynamic = "force-dynamic";
 
 const HOME_PREVIEW_LIMIT = 15;
+const HOME_PREVIEW_PREFIXES = [
+  "FBI-UAP-S23, WITNESS INTERVIEW",
+  "FBI-UAP-S23, WITNESS DEBRIEF",
+  "USPER-UAP-2025, MISSION REPORT",
+  "STATE-DEPT-CABLE, MEXICO POLITICAL BLOTTER",
+  "STATE-DEPT-UAP-CABLE, ASHGABAT",
+  "DOS-UAP-2001, DIPLOMATIC CABLE",
+  "STATE-DEPT-UAP-CABLE, KAZAKHSTAN",
+  "DOS-UAP-C1, CABLE REPORT",
+  "NASA-UAP-D7",
+  "NASA-UAP-D6",
+  "NASA-UAP-D5",
+  "NASA-UAP-D4",
+  "NASA-UAP-D3",
+  "NASA-UAP-D2",
+  "NASA-UAP-D1",
+];
 
 export default async function Home() {
   let total = 0;
@@ -46,24 +63,34 @@ export default async function Home() {
       .where(
         and(
           eq(schema.documents.status, "ready"),
+          eq(schema.documents.mediaKind, "pdf"),
           ne(schema.documents.documentType, "PHOTOGRAPH"),
           eq(schema.pages.status, "extracted"),
           eq(schema.pages.page, 1),
           isNotNull(schema.documents.coverImageUrl),
-          sql`coalesce(${schema.documents.kicker}, ${schema.documents.title}) not ilike 'WUS-UAP-161%'`,
         ),
       )
       .orderBy(desc(schema.documents.uploadedAt))
-      .limit(HOME_PREVIEW_LIMIT);
+      .limit(200);
 
-    files = rows.map((r) => ({
-      id: r.id,
-      title: r.title || r.fallbackTitle,
-      agency: r.agency,
-      documentType: r.documentType,
-      pageCount: r.pageCount,
-      coverImageUrl: r.coverImageUrl,
-    }));
+    const rowsByPrefix = new Map<string, (typeof rows)[number]>();
+    for (const row of rows) {
+      const title = (row.title || row.fallbackTitle).toUpperCase();
+      const prefix = HOME_PREVIEW_PREFIXES.find((p) => title.startsWith(p));
+      if (prefix && !rowsByPrefix.has(prefix)) rowsByPrefix.set(prefix, row);
+    }
+
+    files = HOME_PREVIEW_PREFIXES.map((prefix) => rowsByPrefix.get(prefix))
+      .filter((row): row is (typeof rows)[number] => Boolean(row))
+      .slice(0, HOME_PREVIEW_LIMIT)
+      .map((r) => ({
+        id: r.id,
+        title: r.title || r.fallbackTitle,
+        agency: r.agency,
+        documentType: r.documentType,
+        pageCount: r.pageCount,
+        coverImageUrl: r.coverImageUrl,
+      }));
   } catch (e) {
     console.warn("[home] db unavailable", e);
   }

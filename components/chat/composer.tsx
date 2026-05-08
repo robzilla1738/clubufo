@@ -39,7 +39,7 @@ export function Composer({
       }}
       className="border hairline bg-card/40 transition-[background-color,border-color] focus-within:border-cyan focus-within:bg-card/60"
     >
-      <div className="flex min-h-24 items-center gap-3 px-4 py-3">
+      <div className="flex min-h-16 items-center gap-3 px-4 py-2 sm:min-h-[72px]">
         <span className="shrink-0 text-cyan text-[14px] select-none">&gt;</span>
         <textarea
           ref={ref}
@@ -54,14 +54,14 @@ export function Composer({
               if (!busy && value.trim()) onSubmit();
             }
           }}
-          className="block min-h-[24px] w-full resize-none border-0 bg-transparent px-0 py-0 pr-2 text-[14px] leading-[1.6] outline-none placeholder:text-[12px] placeholder:uppercase placeholder:tracking-[0.16em] placeholder:text-muted-foreground/60"
+          className="block min-h-[24px] w-full resize-none border-0 bg-transparent px-0 py-0 pr-2 text-[14px] leading-[1.55] outline-none placeholder:text-[12px] placeholder:uppercase placeholder:tracking-[0.16em] placeholder:text-muted-foreground/60"
         />
         <button
           type={busy ? "button" : "submit"}
           onClick={busy ? onStop : undefined}
           disabled={!busy && (!value.trim() || disabled)}
           className={cn(
-            "hit-target shrink-0 px-5 text-[10px] uppercase tracking-[0.18em] transition-[background-color,color,scale] active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 sm:min-h-16",
+            "hit-target shrink-0 px-5 py-2 text-[10px] uppercase tracking-[0.18em] transition-[background-color,color,scale] active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 sm:min-h-12",
             busy
               ? "border border-foreground text-foreground hover:bg-foreground hover:text-background"
               : "border border-cyan text-cyan disabled:cursor-not-allowed disabled:opacity-30 hover:bg-cyan hover:text-background",
