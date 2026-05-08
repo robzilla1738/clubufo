@@ -7,7 +7,13 @@ export const dynamic = "force-dynamic";
 
 export const metadata = { title: "ARCHIVE" };
 
-type SP = { q?: string; sort?: string; type?: string; tag?: string };
+type SP = {
+  q?: string;
+  sort?: string;
+  type?: string;
+  tag?: string;
+  agency?: string;
+};
 
 export default async function ArchivePage(props: {
   searchParams: Promise<SP>;
@@ -17,6 +23,7 @@ export default async function ArchivePage(props: {
   const sort = sp.sort ?? "recent";
   const typeFilter = sp.type;
   const tagFilter = sp.tag;
+  const agencyFilter = sp.agency;
 
   const conditions = [
     inArray(schema.documents.status, ["ready", "partial"]),
@@ -36,6 +43,9 @@ export default async function ArchivePage(props: {
   }
   if (tagFilter) {
     conditions.push(sql`${tagFilter} = ANY(${schema.documents.tags})`);
+  }
+  if (agencyFilter) {
+    conditions.push(eq(schema.documents.agency, agencyFilter));
   }
 
   const orderBy =
@@ -80,8 +90,8 @@ export default async function ArchivePage(props: {
       .orderBy(orderBy)
       .limit(500)) as Row[];
 
-    // Compute facet counts from ALL ready/partial docs (not the filtered set —
-    // we want to show what's available to filter to).
+    // Compute facet counts from ALL ready/partial docs, not the filtered set.
+    // We want to show what's available to filter to.
     const facetRows = await db
       .select({
         documentType: schema.documents.documentType,
@@ -120,16 +130,15 @@ export default async function ArchivePage(props: {
 
   return (
     <div className="flex-1 flex flex-col">
-      {/* PAGE HEADER */}
-      <header className="px-6 lg:px-10 pt-14 pb-10 border-b hairline">
-        <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-          &gt; <span className="text-cyan">ARCHIVE</span>
+      <header className="ufo-page-header ufo-page-pad">
+        <p className="ufo-kicker">
+          &gt; <span className="ufo-kicker-strong">ARCHIVE</span>
           <span className="opacity-40 mx-2">/</span>
           RELEASE 001
           <span className="opacity-40 mx-2">/</span>
           PUBLIC
         </p>
-        <h1 className="mt-3 text-3xl md:text-5xl uppercase tracking-[0.02em] leading-[1.05]">
+        <h1 className="ufo-title mt-3">
           FILE INDEX
         </h1>
       </header>
@@ -141,9 +150,10 @@ export default async function ArchivePage(props: {
         initialSort={sort}
         initialType={typeFilter}
         initialTag={tagFilter}
+        initialAgency={agencyFilter}
       />
 
-      <div className="flex-1 px-6 lg:px-10 py-6 overflow-x-auto">
+      <div className="ufo-page-pad flex-1 py-5 md:overflow-x-auto md:py-6">
         {!dbAvailable ? (
           <EmptyState
             title="[NO DB CONNECTION]"
@@ -152,10 +162,13 @@ export default async function ArchivePage(props: {
         ) : rows.length === 0 ? (
           <EmptyState
             title={q ? `[NO MATCH FOR "${q.toUpperCase()}"]` : "[NO FILES]"}
-            body="Adjust filters or run pnpm ingest to seed the corpus."
+            body="Adjust filters or add files to the archive."
           />
         ) : (
-          <ArchiveTable rows={rows} />
+          <>
+            <ArchiveCardList rows={rows} />
+            <ArchiveTable rows={rows} />
+          </>
         )}
       </div>
     </div>
@@ -183,13 +196,25 @@ function ArchiveTable({
     return `${String(date.getMonth() + 1)}/${date.getDate()}/${String(date.getFullYear()).slice(-2)}`;
   };
   return (
-    <table className="w-full text-[11px] uppercase tracking-[0.06em] border-collapse">
+    <table className="hidden min-w-[980px] w-full table-fixed border-collapse text-[11px] tracking-[0.06em] md:table">
+      <colgroup>
+        <col className="w-[30%]" />
+        <col className="w-[14%]" />
+        <col className="w-[14%]" />
+        <col className="w-[10%]" />
+        <col className="w-[12%]" />
+        <col className="w-[13%]" />
+        <col className="w-[7%]" />
+      </colgroup>
       <thead>
         <tr>
-          <th className="text-left font-normal text-cyan border-y hairline py-3 px-4 w-[42%]">
+          <th className="text-left font-normal text-cyan border-y hairline py-3 px-4">
             <span className="tabular-nums tracking-[0.18em]">
               {rows.length.toLocaleString()} FILES
             </span>
+          </th>
+          <th className="text-left font-normal text-cyan border-y hairline py-3 px-4">
+            TYPE
           </th>
           <th className="text-left font-normal text-cyan border-y hairline py-3 px-4">
             AGENCY
@@ -204,7 +229,7 @@ function ArchiveTable({
             LOCATION
           </th>
           <th className="text-right font-normal text-cyan border-y hairline py-3 px-4">
-            TYPE <span className="opacity-60">↑</span>
+            PGS
           </th>
         </tr>
       </thead>
@@ -212,37 +237,43 @@ function ArchiveTable({
         {rows.map((r) => (
           <tr
             key={r.id}
-            className="border-b hairline group hover:bg-cyan/[0.035] transition-colors"
+            className="group h-[76px] border-b hairline transition-colors hover:bg-cyan/[0.035]"
           >
-            <td className="py-4 px-4 align-top">
+            <td className="px-4 py-3 align-middle">
               <Link
                 href={`/archive/${r.id}`}
-                className="group-hover:text-cyan transition-colors leading-[1.5] block"
+                className="line-clamp-2 text-[12px] leading-[1.55] tracking-normal text-foreground/90 transition-colors group-hover:text-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
               >
                 {r.kicker ?? r.title}
               </Link>
             </td>
-            <td className="py-4 px-4 text-muted-foreground align-top">
-              <span data-bracket>{r.agency ?? "N/A"}</span>
+            <td className="px-4 py-3 align-middle uppercase text-muted-foreground">
+              <span className="block truncate" data-bracket title={r.documentType ?? "N/A"}>
+                {formatFacetLabel(r.documentType ?? "N/A")}
+              </span>
             </td>
-            <td className="py-4 px-4 text-muted-foreground align-top tabular-nums">
+            <td className="px-4 py-3 align-middle uppercase text-muted-foreground">
+              <span className="block truncate" data-bracket title={r.agency ?? "N/A"}>
+                {r.agency ?? "N/A"}
+              </span>
+            </td>
+            <td className="px-4 py-3 align-middle tabular-nums uppercase text-muted-foreground">
               <span data-bracket>{fmtDate(r.uploadedAt)}</span>
             </td>
-            <td className="py-4 px-4 text-muted-foreground align-top tabular-nums">
+            <td className="px-4 py-3 align-middle tabular-nums uppercase text-muted-foreground">
               <span data-bracket>
                 {r.incidentDate ? fmtDate(r.incidentDate) : "N/A"}
               </span>
             </td>
-            <td className="py-4 px-4 text-muted-foreground align-top">
-              <span data-bracket>{r.incidentLocation ?? "N/A"}</span>
+            <td className="px-4 py-3 align-middle uppercase text-muted-foreground">
+              <span className="line-clamp-2" data-bracket title={r.incidentLocation ?? "N/A"}>
+                {r.incidentLocation ?? "N/A"}
+              </span>
             </td>
-            <td className="py-4 px-4 text-right text-muted-foreground align-top">
-              <span data-bracket>.PDF</span>
-              {r.pageCount ? (
-                <span className="ml-2 text-muted-foreground/50 tabular-nums">
-                  {r.pageCount}p
-                </span>
-              ) : null}
+            <td className="px-4 py-3 text-right align-middle uppercase text-muted-foreground">
+              <span className="tabular-nums" data-bracket>
+                {r.pageCount ?? "N/A"}
+              </span>
             </td>
           </tr>
         ))}
@@ -251,13 +282,92 @@ function ArchiveTable({
   );
 }
 
+function ArchiveCardList({
+  rows,
+}: {
+  rows: Array<{
+    id: string;
+    kicker: string | null;
+    title: string;
+    agency: string | null;
+    documentType: string | null;
+    incidentDate: string | null;
+    incidentLocation: string | null;
+    pageCount: number | null;
+    uploadedAt: Date;
+  }>;
+}) {
+  const fmtDate = (d: Date | string | null) => {
+    if (!d) return "N/A";
+    const date = typeof d === "string" ? new Date(d) : d;
+    return `${String(date.getMonth() + 1)}/${date.getDate()}/${String(date.getFullYear()).slice(-2)}`;
+  };
+
+  return (
+    <ol className="divide-y divide-border/70 border-y hairline md:hidden">
+      {rows.map((r) => (
+        <li key={r.id}>
+          <Link
+            href={`/archive/${r.id}`}
+            className="block min-h-[152px] px-1 py-4 transition-[background-color,scale] hover:bg-cyan/[0.035] active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <h2 className="line-clamp-2 text-[12px] leading-[1.55] tracking-normal text-foreground">
+                {r.kicker ?? r.title}
+              </h2>
+              <span className="shrink-0 text-[10px] uppercase tracking-[0.16em] text-cyan">
+                [.PDF]
+              </span>
+            </div>
+            <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+              <div>
+                <dt className="text-muted-foreground/50">Agency</dt>
+                <dd className="mt-0.5 truncate text-foreground/75" data-bracket>
+                  {r.agency ?? "N/A"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground/50">Type</dt>
+                <dd className="mt-0.5 truncate text-foreground/75" data-bracket>
+                  {formatFacetLabel(r.documentType ?? "N/A")}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground/50">Incident</dt>
+                <dd className="mt-0.5 text-foreground/75 tabular-nums" data-bracket>
+                  {r.incidentDate ? fmtDate(r.incidentDate) : "N/A"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground/50">Pages</dt>
+                <dd className="mt-0.5 text-foreground/75 tabular-nums" data-bracket>
+                  {r.pageCount ? `${r.pageCount}p` : "N/A"}
+                </dd>
+              </div>
+            </dl>
+            {r.incidentLocation ? (
+              <p className="mt-3 line-clamp-1 text-[10px] uppercase tracking-[0.12em] text-muted-foreground/70">
+                {r.incidentLocation}
+              </p>
+            ) : null}
+          </Link>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function formatFacetLabel(value: string) {
+  return value.replaceAll("_", " ");
+}
+
 function EmptyState({ title, body }: { title: string; body: string }) {
   return (
-    <div className="border hairline p-12 text-center space-y-3">
-      <p className="text-cyan text-[12px] uppercase tracking-[0.18em]">
+    <div className="border hairline p-8 text-center space-y-3 sm:p-12">
+      <p className="ufo-kicker ufo-kicker-strong">
         {title}
       </p>
-      <p className="text-muted-foreground text-[11px] uppercase tracking-[0.1em]">
+      <p className="ufo-copy mx-auto max-w-xl uppercase tracking-[0.1em]">
         {body}
       </p>
     </div>

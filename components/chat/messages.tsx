@@ -15,7 +15,7 @@ export function MessageList({
 }) {
   if (messages.length === 0) return null;
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-9">
       {messages.map((m) => (
         <Message key={m.id} message={m} onOpenSource={onOpenSource} />
       ))}
@@ -44,7 +44,7 @@ function Message({
     <article className="flex flex-col gap-2.5">
       <div
         className={cn(
-          "text-[9px] uppercase tracking-[0.24em]",
+          "ufo-kicker text-[9px]",
           isUser ? "text-muted-foreground/70" : "text-cyan",
         )}
       >
@@ -52,7 +52,7 @@ function Message({
       </div>
       <div
         className={cn(
-          "text-[14px] leading-[1.75]",
+          "ufo-copy max-w-none text-[14px]",
           isUser ? "text-foreground/80" : "text-foreground",
         )}
       >
@@ -82,7 +82,7 @@ function renderRich(
       return (
         <ul
           key={i}
-          className="my-2 list-none space-y-1.5 pl-0 [&_li]:relative [&_li]:pl-4"
+          className="my-3 list-none space-y-2 pl-0 [&_li]:relative [&_li]:pl-4"
         >
           {b.items.map((item, j) => (
             <li key={j}>
@@ -98,7 +98,7 @@ function renderRich(
     }
     if (b.kind === "ol") {
       return (
-        <ol key={i} className="my-2 list-none space-y-1.5 pl-0">
+        <ol key={i} className="my-3 list-none space-y-2 pl-0">
           {b.items.map((item, j) => (
             <li key={j} className="flex gap-3">
               <span className="text-cyan tabular-nums shrink-0">
@@ -216,10 +216,10 @@ function renderInline(
 function ThinkingRow() {
   return (
     <article className="flex flex-col gap-2.5">
-      <div className="text-[9px] uppercase tracking-[0.24em] text-cyan">
+      <div className="ufo-kicker text-[9px] text-cyan">
         LIBRARIAN
       </div>
-      <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+      <div className="flex items-center gap-2 ufo-kicker text-muted-foreground">
         <span className="flex gap-1">
           <span className="size-1 bg-cyan inline-block animate-pulse" />
           <span className="size-1 bg-cyan inline-block animate-pulse [animation-delay:200ms]" />

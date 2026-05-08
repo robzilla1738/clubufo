@@ -53,14 +53,14 @@
 /* ---- ChatUFO terminal HUD palette --------------------------------------- */
 :root,
 .dark {
-  --background: #000000;
+  --background: #020506;
   --foreground: #dcdcdc;
   --card: #050505;
   --card-foreground: #dcdcdc;
   --popover: #050505;
   --popover-foreground: #dcdcdc;
   --primary: #7dd3fc;                   /* cyan accent */
-  --primary-foreground: #000000;
+  --primary-foreground: #020506;
   --secondary: #0d0d10;
   --secondary-foreground: #dcdcdc;
   --muted: #0a0a0a;
@@ -68,21 +68,21 @@
   --accent: #0d0d10;
   --accent-foreground: #dcdcdc;
   --destructive: oklch(0.66 0.21 27);
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.10);
+  --border: rgba(220, 220, 220, 0.08);
+  --input: rgba(220, 220, 220, 0.10);
   --ring: rgba(125, 211, 252, 0.45);
   --cyan: #7dd3fc;
-  --grid: rgba(255, 255, 255, 0.04);
+  --grid: rgba(220, 220, 220, 0.04);
   --chart-1: #7dd3fc;
-  --chart-2: rgba(255, 255, 255, 0.6);
-  --chart-3: rgba(255, 255, 255, 0.4);
-  --chart-4: rgba(255, 255, 255, 0.25);
-  --chart-5: rgba(255, 255, 255, 0.1);
+  --chart-2: rgba(220, 220, 220, 0.6);
+  --chart-3: rgba(220, 220, 220, 0.4);
+  --chart-4: rgba(220, 220, 220, 0.25);
+  --chart-5: rgba(220, 220, 220, 0.1);
   --radius: 0px;
   --sidebar: #050505;
   --sidebar-foreground: #dcdcdc;
   --sidebar-primary: #7dd3fc;
-  --sidebar-primary-foreground: #000000;
+  --sidebar-primary-foreground: #020506;
   --sidebar-accent: #0d0d10;
   --sidebar-accent-foreground: #dcdcdc;
   --sidebar-border: rgba(255, 255, 255, 0.08);
@@ -106,9 +106,9 @@
   }
   ::selection {
     background: var(--cyan);
-    color: #000;
+    color: var(--background);
   }
-  /* Default heading style — just bigger mono with slight tracking */
+  /* Default heading style: just bigger mono with slight tracking */
   h1, h2, h3, h4 {
     font-family: var(--font-mono), ui-monospace, monospace;
     font-weight: 400;
@@ -121,7 +121,7 @@
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
 
-  /* Scanline overlay — subtle horizontal lines over the entire viewport */
+  /* Scanline overlay: subtle horizontal lines over the entire viewport */
   .scanlines::before {
     content: "";
     position: fixed;
@@ -135,7 +135,7 @@
         to bottom,
         transparent 0,
         transparent 2px,
-        rgba(255, 255, 255, 0.025) 3px,
+        rgba(220, 220, 220, 0.025) 3px,
         transparent 4px
       );
   }
@@ -152,7 +152,7 @@
         to bottom,
         transparent 0%,
         transparent 49.6%,
-        rgba(255, 255, 255, 0.02) 49.8%,
+        rgba(220, 220, 220, 0.02) 49.8%,
         transparent 50.2%,
         transparent 100%
       );
@@ -186,7 +186,7 @@
     background-size: 32px 32px;
   }
 
-  /* Hairline border helper — bake the alpha right into the color */
+  /* Hairline border helper: bake the alpha right into the color */
   .hairline { border-color: rgba(255, 255, 255, 0.08); }
 
   /* Cyan glow on focus / active */
@@ -196,11 +196,11 @@
       0 0 24px -8px rgba(125, 211, 252, 0.5);
   }
 
-  /* Bracketed value — use as `<span data-bracket>VALUE</span>` */
+  /* Bracketed value: use as `<span data-bracket>VALUE</span>` */
   [data-bracket]::before { content: "[" }
   [data-bracket]::after  { content: "]" }
 
-  /* HUD label — tiny mono uppercase tracking */
+  /* HUD label: tiny mono uppercase tracking */
   .hud-label {
     font-size: 10px;
     letter-spacing: 0.16em;
@@ -233,6 +233,183 @@
 
   .scrollbar-none::-webkit-scrollbar { display: none; }
   .scrollbar-none { scrollbar-width: none; }
+
+  .hit-target {
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  .image-outline {
+    outline: 1px solid rgba(255, 255, 255, 0.1);
+    outline-offset: -1px;
+  }
+
+  .ufo-page-pad {
+    padding-inline: 1rem;
+  }
+
+  .ufo-page-header {
+    border-bottom: 1px solid rgba(220, 220, 220, 0.08);
+    padding-block: 2.5rem 2.25rem;
+  }
+
+  .ufo-kicker {
+    color: var(--muted-foreground);
+    font-size: 10px;
+    line-height: 1.4;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .ufo-kicker-strong {
+    color: var(--cyan);
+  }
+
+  .ufo-title {
+    color: var(--foreground);
+    font-size: 1.875rem;
+    line-height: 1.08;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .ufo-headline {
+    color: var(--foreground);
+    font-size: 1.5rem;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .ufo-copy {
+    max-width: 72ch;
+    color: rgba(220, 220, 220, 0.78);
+    font-size: 13px;
+    line-height: 1.75;
+    letter-spacing: 0;
+    text-transform: none;
+    text-wrap: pretty;
+  }
+
+  .ufo-meta-grid {
+    display: grid;
+    grid-template-columns: minmax(88px, 112px) minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: baseline;
+    padding: 0.625rem 0.75rem;
+  }
+
+  .ufo-action {
+    min-height: 40px;
+    min-width: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(220, 220, 220, 0.08);
+    padding: 0.625rem 1rem;
+    color: var(--muted-foreground);
+    font-size: 10px;
+    line-height: 1.2;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition-property: background-color, border-color, color, scale;
+    transition-duration: 180ms;
+    transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .ufo-action:hover {
+    border-color: rgba(220, 220, 220, 0.42);
+    color: var(--foreground);
+  }
+
+  .ufo-action:active {
+    scale: 0.96;
+  }
+
+  .ufo-action:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  .ufo-action-primary {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+
+  .ufo-action-primary:hover {
+    background: var(--cyan);
+    border-color: var(--cyan);
+    color: var(--background);
+  }
+
+  .ufo-chip {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba(220, 220, 220, 0.08);
+    padding-inline: 0.5rem;
+    color: var(--muted-foreground);
+    font-size: 10px;
+    line-height: 1.2;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition-property: border-color, color, background-color;
+    transition-duration: 180ms;
+    transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .ufo-chip:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+
+  .ufo-chip:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  @media (min-width: 640px) {
+    .ufo-page-pad {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .ufo-page-header {
+      padding-block: 3.5rem 2.5rem;
+    }
+
+    .ufo-title {
+      font-size: 3rem;
+      line-height: 1.05;
+    }
+
+    .ufo-headline {
+      font-size: 1.875rem;
+      line-height: 1.16;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .ufo-page-pad {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .crt::after,
+    .cursor-blink::after {
+      animation: none;
+    }
+    .scanlines::before,
+    .crt::after,
+    .grain::after {
+      opacity: 0.12;
+    }
+  }
 }
 
 /* ---- shadcn input refinement -- single-stroke fields with no rounding -- */

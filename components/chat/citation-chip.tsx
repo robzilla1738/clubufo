@@ -28,8 +28,8 @@ export function CitationChip({
     <button
       type="button"
       onClick={() => onOpen(source)}
-      className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 mx-0.5 rounded-sm bg-primary/15 text-primary text-[10px] font-mono align-text-top hover:bg-primary/25 transition-colors cursor-pointer"
-      title={`${source.documentTitle} — p.${source.page}`}
+      className="relative mx-0.5 inline-flex h-[18px] min-w-[18px] cursor-pointer items-center justify-center bg-primary/15 px-1 align-text-top font-mono text-[10px] text-primary transition-[background-color,scale] before:absolute before:-inset-2 hover:bg-primary/25 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+      title={`${source.documentTitle}, p.${source.page}`}
     >
       {index}
     </button>

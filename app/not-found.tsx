@@ -1,36 +1,36 @@
 import Link from "next/link";
 import { AlienIcon } from "@/components/site/alien-icon";
 
-export const metadata = { title: "[404] // SIGNAL LOST" };
+export const metadata = { title: "[404] // PAGE MISSING" };
 
 export default function NotFound() {
   return (
-    <div className="flex-1 flex items-center justify-center px-6 py-24">
+    <div className="ufo-page-pad flex-1 flex items-center justify-center py-20 md:py-24">
       <div className="max-w-lg text-center space-y-6">
         <AlienIcon size={48} className="mx-auto text-cyan opacity-60" />
-        <p className="text-[10px] uppercase tracking-[0.24em] text-cyan">
-          &gt; SIGNAL LOST
+        <p className="ufo-kicker ufo-kicker-strong">
+          &gt; PAGE MISSING
         </p>
-        <h1 className="text-3xl md:text-4xl uppercase tracking-[0.04em] leading-[1.15]">
-          404 — PAGE NOT IN
+        <h1 className="ufo-headline">
+          404: PAGE NOT IN
           <br />
           THE ARCHIVE
         </h1>
-        <p className="text-[12px] uppercase tracking-[0.08em] text-muted-foreground">
-          THE TRANSMISSION YOU REQUESTED COULD NOT BE LOCATED.
+        <p className="ufo-copy mx-auto max-w-md uppercase tracking-[0.08em]">
+          THAT PAGE IS NOT IN THE ARCHIVE.
         </p>
-        <div className="pt-4 flex justify-center gap-3">
+        <div className="flex flex-col justify-center gap-3 pt-4 sm:flex-row">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-5 py-2.5 border border-cyan text-cyan hover:bg-cyan hover:text-black transition-colors text-[10px] uppercase tracking-[0.22em]"
+            className="ufo-action ufo-action-primary px-5 tracking-[0.22em]"
           >
             &gt; RETURN HOME
           </Link>
           <Link
             href="/chat"
-            className="inline-flex items-center gap-2 px-5 py-2.5 border hairline text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors text-[10px] uppercase tracking-[0.22em]"
+            className="ufo-action px-5 tracking-[0.22em]"
           >
-            OPEN TERMINAL
+            OPEN CHAT
           </Link>
         </div>
       </div>

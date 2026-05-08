@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-08T16:28:08Z",
+  "title": "Design System: ChatUFO",
+  "extensions": {
+    "colorMeta": {
+      "archive-black": {
+        "role": "neutral",
+        "displayName": "Archive Black",
+        "canonical": "#020506",
+        "tonalRamp": ["oklch(15% 0.006 220)", "oklch(24% 0.006 220)", "oklch(34% 0.006 220)", "oklch(45% 0.006 220)", "oklch(58% 0.006 220)", "oklch(72% 0.006 220)", "oklch(86% 0.006 220)", "oklch(95% 0.006 220)"]
+      },
+      "archive-panel": {
+        "role": "neutral",
+        "displayName": "Archive Panel",
+        "canonical": "#050505",
+        "tonalRamp": ["oklch(16% 0.006 220)", "oklch(24% 0.006 220)", "oklch(34% 0.006 220)", "oklch(45% 0.006 220)", "oklch(58% 0.006 220)", "oklch(72% 0.006 220)", "oklch(86% 0.006 220)", "oklch(95% 0.006 220)"]
+      },
+      "archive-control": {
+        "role": "neutral",
+        "displayName": "Archive Control",
+        "canonical": "#0D0D10",
+        "tonalRamp": ["oklch(17% 0.008 245)", "oklch(25% 0.008 245)", "oklch(35% 0.008 245)", "oklch(46% 0.008 245)", "oklch(58% 0.008 245)", "oklch(72% 0.008 245)", "oklch(86% 0.008 245)", "oklch(95% 0.008 245)"]
+      },
+      "document-ink": {
+        "role": "neutral",
+        "displayName": "Document Ink",
+        "canonical": "#DCDCDC",
+        "tonalRamp": ["oklch(17% 0.004 245)", "oklch(28% 0.004 245)", "oklch(39% 0.004 245)", "oklch(51% 0.004 245)", "oklch(64% 0.004 245)", "oklch(77% 0.004 245)", "oklch(88% 0.004 245)", "oklch(95% 0.004 245)"]
+      },
+      "archive-muted": {
+        "role": "neutral",
+        "displayName": "Archive Muted",
+        "canonical": "#6B7280",
+        "tonalRamp": ["oklch(18% 0.012 260)", "oklch(28% 0.012 260)", "oklch(38% 0.012 260)", "oklch(49% 0.012 260)", "oklch(61% 0.012 260)", "oklch(73% 0.012 260)", "oklch(86% 0.012 260)", "oklch(95% 0.012 260)"]
+      },
+      "evidence-cyan": {
+        "role": "primary",
+        "displayName": "Evidence Cyan",
+        "canonical": "#7DD3FC",
+        "tonalRamp": ["oklch(15% 0.08 230)", "oklch(25% 0.09 230)", "oklch(36% 0.10 230)", "oklch(48% 0.11 230)", "oklch(61% 0.12 230)", "oklch(74% 0.12 230)", "oklch(86% 0.09 230)", "oklch(95% 0.04 230)"]
+      },
+      "warning-red": {
+        "role": "secondary",
+        "displayName": "Warning Red",
+        "canonical": "oklch(0.66 0.21 27)",
+        "tonalRamp": ["oklch(15% 0.08 27)", "oklch(25% 0.10 27)", "oklch(36% 0.13 27)", "oklch(48% 0.17 27)", "oklch(61% 0.20 27)", "oklch(74% 0.16 27)", "oklch(86% 0.09 27)", "oklch(95% 0.04 27)"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Large archive and about headers only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Chat empty states, page statements, and compact hero lines."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Readable answers and document summaries."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Transcripts, source snippets, and long-form document reading."
+      },
+      "label": {
+        "displayName": "HUD Label",
+        "purpose": "Navigation, metadata, counters, filters, and system states."
+      }
+    },
+    "shadows": [
+      {
+        "name": "cyan-focus-glow",
+        "value": "inset 0 0 0 1px rgba(125, 211, 252, 0.4), 0 0 24px -8px rgba(125, 211, 252, 0.5)",
+        "purpose": "Strong focus, active inspection, or selected evidence moments."
+      },
+      {
+        "name": "overlay-shadow",
+        "value": "0 10px 15px -3px rgba(2, 5, 6, 0.1), 0 4px 6px -4px rgba(2, 5, 6, 0.1)",
+        "purpose": "Dialogs, command palette, dropdowns, and sheets only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-transition",
+        "value": "150ms-250ms ease-out",
+        "purpose": "Color, opacity, and selection feedback."
+      },
+      {
+        "name": "hero-carousel",
+        "value": "700ms ease-out",
+        "purpose": "Document carousel changes. Must respect reduced-motion preferences."
+      },
+      {
+        "name": "crt-roll",
+        "value": "12s linear infinite",
+        "purpose": "Atmospheric viewport overlay. Must never interfere with reading."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Terminal Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary source action such as opening chat, browsing the archive, or querying a file.",
+      "html": "<button class=\"ds-btn-primary\"><span>&gt;</span> OPEN TERMINAL</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:8px;border:1px solid #7DD3FC;background:transparent;color:#7DD3FC;padding:12px 24px;border-radius:0;font-family:Geist Mono,ui-monospace,SF Mono,Menlo,monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;transition:background-color 180ms ease-out,color 180ms ease-out,border-color 180ms ease-out}.ds-btn-primary:hover{background:#7DD3FC;color:#020506}.ds-btn-primary:focus-visible{outline:2px solid rgba(125,211,252,.45);outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Terminal Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary route or alternate action with hairline border and muted label.",
+      "html": "<button class=\"ds-btn-secondary\">BROWSE ARCHIVE</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(220,220,220,.08);background:transparent;color:#6B7280;padding:12px 24px;border-radius:0;font-family:Geist Mono,ui-monospace,SF Mono,Menlo,monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;transition:color 180ms ease-out,border-color 180ms ease-out}.ds-btn-secondary:hover{color:#DCDCDC;border-color:rgba(220,220,220,.4)}.ds-btn-secondary:focus-visible{outline:2px solid rgba(125,211,252,.45);outline-offset:2px}"
+    },
+    {
+      "name": "Composer Field",
+      "kind": "input",
+      "refersTo": "composer-field",
+      "description": "Chat query surface with command prompt prefix and action button.",
+      "html": "<form class=\"ds-composer\"><span class=\"ds-composer-prompt\">&gt;</span><textarea class=\"ds-composer-text\" placeholder=\"QUERY THE ARCHIVE...\"></textarea><button class=\"ds-composer-send\">SEND</button></form>",
+      "css": ".ds-composer{display:flex;align-items:flex-start;border:1px solid rgba(220,220,220,.08);background:rgba(5,5,5,.4);border-radius:0;font-family:Geist Mono,ui-monospace,SF Mono,Menlo,monospace;transition:background-color 180ms ease-out,border-color 180ms ease-out}.ds-composer:focus-within{border-color:#7DD3FC;background:rgba(5,5,5,.6)}.ds-composer-prompt{padding:12px 0 0 12px;color:#7DD3FC;font-size:14px}.ds-composer-text{min-height:48px;flex:1;resize:none;border:0;background:transparent;color:#DCDCDC;padding:12px 8px;font:inherit;font-size:14px;line-height:1.6;outline:0}.ds-composer-text::placeholder{color:rgba(107,114,128,.6);font-size:12px;letter-spacing:.16em;text-transform:uppercase}.ds-composer-send{height:36px;margin:8px;padding:0 12px;border:1px solid #7DD3FC;background:transparent;color:#7DD3FC;border-radius:0;font:inherit;font-size:10px;letter-spacing:.18em;text-transform:uppercase}.ds-composer-send:hover{background:#7DD3FC;color:#020506}.ds-composer-send:focus-visible{outline:2px solid rgba(125,211,252,.45);outline-offset:2px}"
+    },
+    {
+      "name": "Citation Chip",
+      "kind": "chip",
+      "refersTo": "citation-chip",
+      "description": "Inline citation control that opens the exact source page.",
+      "html": "<button class=\"ds-citation\" title=\"Document title, p.12\">1</button>",
+      "css": ".ds-citation{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;margin:0 2px;padding:0 4px;border:0;background:rgba(125,211,252,.15);color:#7DD3FC;border-radius:0;font-family:Geist Mono,ui-monospace,SF Mono,Menlo,monospace;font-size:10px;cursor:pointer;vertical-align:text-top;transition:background-color 180ms ease-out}.ds-citation:hover{background:rgba(125,211,252,.25)}.ds-citation:focus-visible{outline:2px solid rgba(125,211,252,.45);outline-offset:2px}"
+    },
+    {
+      "name": "Source Card",
+      "kind": "card",
+      "refersTo": "source-card",
+      "description": "Source rail item with page thumbnail, numeric marker, page number, title, and snippet.",
+      "html": "<button class=\"ds-source-card\"><div class=\"ds-source-page\"><span class=\"ds-source-index\">01</span><span class=\"ds-source-page-label\">P.7</span></div><div class=\"ds-source-copy\"><p class=\"ds-source-title\">PROJECT BLUE BOOK MEMO</p><p class=\"ds-source-snippet\">A short cited passage appears here.</p></div></button>",
+      "css": ".ds-source-card{display:block;width:280px;text-align:left;border:1px solid rgba(220,220,220,.08);background:transparent;color:#DCDCDC;border-radius:0;overflow:hidden;font-family:Geist Mono,ui-monospace,SF Mono,Menlo,monospace;transition:border-color 180ms ease-out,background-color 180ms ease-out}.ds-source-card:hover{border-color:rgba(220,220,220,.3)}.ds-source-card:focus-visible{outline:2px solid rgba(125,211,252,.45);outline-offset:2px}.ds-source-card[data-active=true],.ds-source-card.is-active{border-color:#7DD3FC;background:rgba(125,211,252,.05)}.ds-source-page{position:relative;aspect-ratio:3/4;background:rgba(2,5,6,.4);border-bottom:1px solid rgba(220,220,220,.08)}.ds-source-index{position:absolute;top:6px;left:6px;display:inline-flex;min-width:18px;height:18px;align-items:center;justify-content:center;background:#DCDCDC;color:#020506;font-size:10px}.ds-source-page-label{position:absolute;right:6px;bottom:6px;background:rgba(2,5,6,.8);color:#DCDCDC;padding:2px 4px;font-size:9px}.ds-source-copy{padding:10px}.ds-source-title{margin:0 0 4px;color:#DCDCDC;font-size:10px;line-height:1.25;letter-spacing:.1em;text-transform:uppercase}.ds-source-snippet{margin:0;color:rgba(107,114,128,.8);font-size:10px;line-height:1.35}"
+    },
+    {
+      "name": "Archive Filter Input",
+      "kind": "input",
+      "refersTo": "archive-filter-input",
+      "description": "Inline filter control for the file index.",
+      "html": "<label class=\"ds-filter\"><span>&gt;</span><input placeholder=\"FILTER...\"/><b>[119]</b></label>",
+      "css": ".ds-filter{display:flex;align-items:center;max-width:448px;border-bottom:1px solid rgba(220,220,220,.08);font-family:Geist Mono,ui-monospace,SF Mono,Menlo,monospace;transition:border-color 180ms ease-out}.ds-filter:focus-within{border-color:#7DD3FC}.ds-filter span{margin-right:8px;color:#7DD3FC;font-size:12px}.ds-filter input{flex:1;border:0;background:transparent;color:#DCDCDC;padding:8px 0;border-radius:0;outline:0;font:inherit;font-size:12px;letter-spacing:.08em;text-transform:uppercase}.ds-filter input::placeholder{color:rgba(107,114,128,.4)}.ds-filter b{margin-left:12px;color:rgba(107,114,128,.6);font-size:10px;letter-spacing:.2em;font-weight:400}"
+    },
+    {
+      "name": "HUD Navigation",
+      "kind": "nav",
+      "refersTo": "hud-nav",
+      "description": "Sticky top-level navigation with compact archive status language.",
+      "html": "<nav class=\"ds-hud\"><a class=\"ds-wordmark\" href=\"#\">CHATUFO <span>// ARCHIVE.001</span></a><a class=\"ds-active\" href=\"#\"><span>&gt;</span> ARCHIVE</a><a href=\"#\">CHAT</a><button>CMDK</button></nav>",
+      "css": ".ds-hud{height:56px;display:flex;align-items:center;gap:32px;border-bottom:1px solid rgba(220,220,220,.08);background:rgba(2,5,6,.85);color:#6B7280;padding:0 40px;font-family:Geist Mono,ui-monospace,SF Mono,Menlo,monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase}.ds-hud a,.ds-hud button{border:0;background:transparent;color:inherit;font:inherit;text-decoration:none;transition:color 180ms ease-out}.ds-hud a:hover,.ds-hud button:hover{color:#DCDCDC}.ds-hud .ds-active{color:#7DD3FC}.ds-hud .ds-active span{margin-right:4px}.ds-wordmark{color:#DCDCDC}.ds-wordmark span{color:rgba(107,114,128,.6)}.ds-hud button:focus-visible,.ds-hud a:focus-visible{outline:2px solid rgba(125,211,252,.45);outline-offset:2px}"
+    },
+    {
+      "name": "Document Page Tile",
+      "kind": "custom",
+      "refersTo": "document-page-tile",
+      "description": "Framed page scan tile used in document detail and hero carousel surfaces.",
+      "html": "<a class=\"ds-page-tile\" href=\"#\"><div class=\"ds-page-image\"><span class=\"ds-classification\">PUBLIC</span><span class=\"ds-page-number\">P.12</span></div></a>",
+      "css": ".ds-page-tile{display:block;border:1px solid rgba(220,220,220,.08);background:transparent;border-radius:0;overflow:hidden;transition:border-color 180ms ease-out}.ds-page-tile:hover{border-color:#7DD3FC}.ds-page-tile:focus-visible{outline:2px solid rgba(125,211,252,.45);outline-offset:2px}.ds-page-image{position:relative;aspect-ratio:3/4;background:rgba(2,5,6,.4)}.ds-page-image:before,.ds-page-image:after{content:\"\";position:absolute;width:8px;height:8px;border-color:rgba(125,211,252,.8)}.ds-page-image:before{top:8px;left:8px;border-top:1px solid;border-left:1px solid}.ds-page-image:after{right:8px;bottom:8px;border-right:1px solid;border-bottom:1px solid}.ds-classification,.ds-page-number{position:absolute;top:6px;background:rgba(2,5,6,.85);color:#7DD3FC;padding:2px 6px;font-family:Geist Mono,ui-monospace,SF Mono,Menlo,monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase}.ds-classification{left:6px}.ds-page-number{right:6px;color:#DCDCDC}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Public Reading Terminal",
+    "overview": "ChatUFO should feel like a credible public archive wired into a direct query terminal. The system keeps the existing dark, monochrome, cyan, grid, HUD, and page-preview language, but the craft standard is cleaner than a novelty terminal. The documents are the visual material; the interface is the instrument around them.\n\nThe product register is restrained. Users are not here to admire an AI assistant or a themed sci-fi site. They are here to ask, scan, inspect, and verify. Every surface should make the next source action obvious: search the archive, open the document, inspect the cited page, read the transcript, or narrow the scope.\n\nThe system explicitly rejects generic SaaS AI chat and conspiracy-site spectacle. No glossy assistant avatars, gradient dashboard polish, alien-fantasy dramatics, panic colors, or claims beyond the corpus. Curiosity is allowed; sensationalism is forbidden.",
+    "keyCharacteristics": [
+      "Source-first: citations, page images, snippets, and metadata stay close to every answer.",
+      "Terminal-disciplined: square controls, mono type, uppercase labels, bracketed values, and tight HUD states.",
+      "Flat and inspectable: depth comes from hairlines, panels, alpha states, and document imagery, not decorative shadows.",
+      "Restrained cyan: cyan marks evidence, action, focus, and selection only.",
+      "Atmosphere under control: scanlines, grain, CRT roll, and carousel motion must never fight readability."
+    ],
+    "rules": [
+      {
+        "name": "The One Cyan Rule",
+        "body": "Evidence Cyan is the only saturated brand color in normal product screens. If a new feature needs more color, it must be semantic data or a true error/warning/success state.",
+        "section": "colors"
+      },
+      {
+        "name": "The Page Is The Color Rule",
+        "body": "Document thumbnails, page scans, redactions, and transcripts provide most visual richness. Do not compensate with decorative gradients, loud charts, or illustration.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Drama Rule",
+        "body": "Warning Red is reserved for errors and destructive states. Never use red to imply danger, cover-up, alert, disclosure, or conspiracy.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reading Override Rule",
+        "body": "Archive labels can be uppercase and spaced out. Answers, transcripts, summaries, and snippets must return to normal-case rhythm when readability matters.",
+        "section": "typography"
+      },
+      {
+        "name": "The Mono Discipline Rule",
+        "body": "Use one family. Do not introduce a friendly SaaS sans, a sci-fi display face, or a newspaper serif unless the entire product direction is deliberately reset.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Archive Rule",
+        "body": "Tables, rails, document cards, empty states, and page grids stay flat at rest. Use a border or a slightly different panel fill before reaching for a shadow.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Overlay Exception Rule",
+        "body": "Shadows are allowed when a layer floats above the current task, such as command search or a dialog. They are not a general card style.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep the interface credible and source-first: every generated answer should make citations, source pages, and document context easy to inspect.",
+      "Do use Evidence Cyan for active navigation, primary action, focus, selected evidence, citation chips, and crop marks.",
+      "Do keep document imagery prominent. Page scans, thumbnails, transcripts, snippets, and metadata are the system's most important visual assets.",
+      "Do preserve the current terminal/archive identity, but refine noisy areas when they affect comprehension.",
+      "Do respect WCAG AA, visible focus states, keyboard navigation, readable long text, and reduced-motion preferences.",
+      "Do use square corners and hairline borders for the product shell.",
+      "Do make empty states practical: say what is missing and what action fixes it, such as running ingest or adjusting filters."
+    ],
+    "donts": [
+      "Don't make ChatUFO feel like a generic SaaS AI chat product. Avoid glossy assistant branding, padded marketing cards, soft gradient dashboards, oversized testimonial-style claims, and vague productivity language.",
+      "Don't make it feel like a conspiracy site. Avoid sensationalism, alien-fantasy imagery, fear cues, dramatic red-alert styling, paranormal theatrics, and copy that implies conclusions the archive does not prove.",
+      "Don't overplay the terminal aesthetic until it becomes a gimmick. HUD language should support orientation, source inspection, and archive navigation.",
+      "Don't add decorative gradients, gradient text, glassmorphism, bokeh, or soft orb backgrounds.",
+      "Don't use new colored side stripes on cards, list items, callouts, or alerts. Use full hairline frames, crop marks, labels, or background tint instead.",
+      "Don't use heavy shadows on archive surfaces. Save elevation for true overlays.",
+      "Don't introduce multiple accent colors for inactive states. Color means evidence, action, focus, selection, or real semantic state.",
+      "Don't let scanlines, CRT roll, grain, blinking cursors, or carousel motion interfere with reading or source verification."
+    ]
+  }
+}

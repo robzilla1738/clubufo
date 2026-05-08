@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   const context = buildContextBlock(hits);
   const sourcesNote = hits.length
     ? `\n\nSOURCE EXCERPTS:\n${context}`
-    : "\n\n(No relevant excerpts retrieved. Answer that the corpus does not contain a clear answer.)";
+    : "\n\n(No relevant excerpts retrieved. Answer that the archive does not contain a clear answer.)";
 
   const result = streamText({
     model: deepseek("deepseek-chat"),

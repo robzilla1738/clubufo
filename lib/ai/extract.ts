@@ -5,7 +5,7 @@
  * suitable for direct insertion into the `pages` and `claims` tables.
  */
 import { z } from "zod";
-import { generateObject } from "ai";
+import { generateObject, generateText } from "ai";
 import { geminiModel } from "./google";
 
 export const PageExtractionSchema = z.object({
@@ -171,5 +171,55 @@ export async function extractPageFromImage(opts: {
     ...rest,
     claims,
     raw: { object, response: { id: response?.id, modelId: response?.modelId } },
+  };
+}
+
+/**
+ * Freeform description fallback for images that the strict structured-output
+ * call refuses (typically photographs with little or no text). Returns the
+ * same ExtractedPage shape so callers don't need to branch.
+ */
+export async function describeImageFreeform(opts: {
+  imagePng: Buffer;
+  documentTitle: string;
+}): Promise<ExtractedPage> {
+  const { text } = await generateText({
+    model: geminiModel(),
+    temperature: 0.2,
+    maxRetries: 2,
+    system: `You are a museum cataloger describing a single photograph or image for a public archive of declassified UAP/UFO records.
+
+Write 2-4 short paragraphs covering:
+1. What is visibly in the image (subject, framing, lighting, background, time of day if guessable).
+2. Any visible text, captions, dates, signatures, redactions, or watermarks — quoted verbatim.
+3. Any context clues that suggest the source (FBI photo file, NASA mission still, hand-drawn diagram, declassification stamp, etc.).
+
+Be neutral and observational. Do not speculate about whether anything is real or extraterrestrial. Do not invent details.`,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: `Title: "${opts.documentTitle}"\n\nDescribe this image.`,
+          },
+          { type: "image", image: opts.imagePng, mediaType: "image/png" },
+        ],
+      },
+    ],
+  });
+
+  const description = (text ?? "").trim();
+  return {
+    cleanedText: description,
+    documentType: "photograph",
+    classification: "UNKNOWN",
+    inferredDate: null,
+    redactionsPresent: false,
+    pageSummary:
+      description.split(/\n+/)[0]?.slice(0, 280) ?? "Image with no visible text.",
+    entities: [],
+    claims: [],
+    raw: { freeform: true, text: description },
   };
 }

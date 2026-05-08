@@ -15,6 +15,13 @@
       "when": 1778252207753,
       "tag": "0001_warm_photon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778260056767,
+      "tag": "0002_loving_wallflower",
+      "breakpoints": true
     }
   ]
 }

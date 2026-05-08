@@ -98,3 +98,52 @@ export async function storePageImage(opts: {
 export function activeBackend(): Backend {
   return resolveBackend();
 }
+
+/**
+ * Generic asset uploader — used for original media files (MP4 source videos)
+ * that aren't per-page page images.
+ */
+export async function storeAsset(opts: {
+  key: string;
+  buffer: Buffer | Uint8Array;
+  contentType: string;
+  cacheControl?: string;
+}): Promise<StoredImage> {
+  const backend = resolveBackend();
+  const cacheControl = opts.cacheControl ?? "public, max-age=31536000, immutable";
+
+  if (backend === "r2") {
+    await getR2().send(
+      new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET!,
+        Key: opts.key,
+        Body: opts.buffer,
+        ContentType: opts.contentType,
+        CacheControl: cacheControl,
+      }),
+    );
+    const base = process.env.R2_PUBLIC_BASE_URL!.replace(/\/$/, "");
+    return { url: `${base}/${opts.key}` };
+  }
+
+  if (backend === "blob") {
+    const body = Buffer.isBuffer(opts.buffer)
+      ? opts.buffer
+      : Buffer.from(opts.buffer);
+    const blob = await put(opts.key, body, {
+      access: "public",
+      addRandomSuffix: false,
+      contentType: opts.contentType,
+      cacheControlMaxAge: 31536000,
+      allowOverwrite: true,
+    });
+    return { url: blob.url };
+  }
+
+  // Dev fallback — write to public/<key>
+  const path = join(process.cwd(), "public", opts.key);
+  const dir = path.split("/").slice(0, -1).join("/");
+  await mkdir(dir, { recursive: true });
+  await writeFile(path, opts.buffer as Uint8Array);
+  return { url: `/${opts.key}` };
+}

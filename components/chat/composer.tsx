@@ -10,7 +10,7 @@ export function Composer({
   onStop,
   disabled,
   status,
-  placeholder = "QUERY THE ARCHIVE…",
+  placeholder = "ASK THE ARCHIVE…",
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -37,10 +37,10 @@ export function Composer({
         e.preventDefault();
         if (!busy && value.trim()) onSubmit();
       }}
-      className="border hairline bg-card/40 focus-within:border-cyan focus-within:bg-card/60 transition-colors"
+      className="border hairline bg-card/40 transition-[background-color,border-color] focus-within:border-cyan focus-within:bg-card/60"
     >
-      <div className="flex items-start">
-        <span className="pl-3 pt-3 text-cyan text-[14px] select-none">&gt;</span>
+      <div className="flex min-h-24 items-center gap-3 px-4 py-3">
+        <span className="shrink-0 text-cyan text-[14px] select-none">&gt;</span>
         <textarea
           ref={ref}
           value={value}
@@ -54,17 +54,17 @@ export function Composer({
               if (!busy && value.trim()) onSubmit();
             }
           }}
-          className="block w-full resize-none bg-transparent border-0 outline-none px-2 py-3 pr-3 text-[14px] leading-[1.6] placeholder:text-muted-foreground/60 placeholder:uppercase placeholder:tracking-[0.16em] placeholder:text-[12px]"
+          className="block min-h-[24px] w-full resize-none border-0 bg-transparent px-0 py-0 pr-2 text-[14px] leading-[1.6] outline-none placeholder:text-[12px] placeholder:uppercase placeholder:tracking-[0.16em] placeholder:text-muted-foreground/60"
         />
         <button
           type={busy ? "button" : "submit"}
           onClick={busy ? onStop : undefined}
           disabled={!busy && (!value.trim() || disabled)}
           className={cn(
-            "shrink-0 m-2 px-3 h-9 text-[10px] uppercase tracking-[0.18em] transition-colors",
+            "hit-target shrink-0 px-5 text-[10px] uppercase tracking-[0.18em] transition-[background-color,color,scale] active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 sm:min-h-16",
             busy
               ? "border border-foreground text-foreground hover:bg-foreground hover:text-background"
-              : "border border-cyan text-cyan disabled:opacity-30 disabled:cursor-not-allowed hover:bg-cyan hover:text-black",
+              : "border border-cyan text-cyan disabled:cursor-not-allowed disabled:opacity-30 hover:bg-cyan hover:text-background",
           )}
           aria-label={busy ? "Stop" : "Send"}
         >

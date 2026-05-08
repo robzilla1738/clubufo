@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useCommandStore } from "./command-menu";
 import { AlienIcon } from "./alien-icon";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +14,6 @@ const NAV: Array<{ href: string; label: string }> = [
 
 export function HudBar() {
   const pathname = usePathname();
-  const openCmd = useCommandStore((s) => s.setOpen);
   const [time, setTime] = useState<string>("");
 
   useEffect(() => {
@@ -31,26 +29,28 @@ export function HudBar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 border-b hairline bg-background/85 backdrop-blur-md">
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6 px-6 lg:px-10 h-14 text-[10px] uppercase tracking-[0.2em]">
-        {/* LEFT — wordmark */}
+    <header className="sticky top-0 z-40 border-b hairline bg-background/90 backdrop-blur-md">
+      <div className="grid h-14 grid-cols-[auto_1fr_auto] items-center gap-3 px-4 text-[9px] uppercase tracking-[0.16em] sm:gap-5 sm:px-6 sm:text-[10px] sm:tracking-[0.2em] lg:px-10">
+        {/* LEFT: wordmark */}
         <Link
           href="/"
-          className="flex items-center gap-2.5 group w-fit"
+          className="hit-target flex w-fit items-center gap-2.5 group focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
           aria-label="ChatUFO home"
         >
           <AlienIcon
             size={18}
             className="text-cyan transition-[filter] group-hover:[filter:drop-shadow(0_0_6px_var(--cyan))]"
           />
-          <span className="text-foreground tracking-[0.24em]">CHATUFO</span>
+          <span className="hidden text-foreground tracking-[0.24em] min-[430px]:inline">
+            CHATUFO
+          </span>
           <span className="hidden md:inline text-muted-foreground/60">
-            // ARCHIVE.001
+            {"// ARCHIVE.001"}
           </span>
         </Link>
 
-        {/* CENTER — nav */}
-        <nav className="flex items-center gap-6 md:gap-8">
+        {/* CENTER: nav */}
+        <nav className="flex min-w-0 items-center justify-center gap-1 sm:gap-3 md:gap-8">
           {NAV.map((item) => {
             const active =
               pathname === item.href ||
@@ -60,7 +60,7 @@ export function HudBar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "transition-colors relative",
+                  "hit-target relative inline-flex items-center justify-center px-1 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 sm:px-2",
                   active
                     ? "text-cyan"
                     : "text-muted-foreground hover:text-foreground",
@@ -79,22 +79,16 @@ export function HudBar() {
               </Link>
             );
           })}
-          <button
-            type="button"
-            onClick={() => openCmd(true)}
-            className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
-            aria-label="Search"
-          >
-            <span className="opacity-70">⌘K</span>
-          </button>
         </nav>
 
-        {/* RIGHT — clock + status */}
-        <div className="text-right text-muted-foreground tabular-nums flex items-center justify-end gap-4">
+        {/* RIGHT: clock and status */}
+        <div className="flex items-center justify-end gap-3 text-right text-muted-foreground tabular-nums sm:gap-4">
           <span className="hidden md:inline">38°53′N · 77°00′W</span>
-          <span className="text-foreground/80">{time || "––:––"} UTC</span>
-          <span className="flex items-center gap-1.5">
-            <span className="size-1.5 bg-emerald-400 inline-block animate-pulse" />
+          <span className="hidden text-foreground/80 sm:inline">
+            {time || "––:––"} UTC
+          </span>
+          <span className="flex items-center gap-1.5" aria-label="Live archive status">
+            <span className="size-1.5 bg-cyan inline-block animate-pulse" />
             <span className="hidden md:inline">LIVE</span>
           </span>
         </div>

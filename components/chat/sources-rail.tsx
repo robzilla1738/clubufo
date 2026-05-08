@@ -30,9 +30,16 @@ export function SourcesRail({
     }
   }
 
+  const hasSources = sources.length > 0;
+
   return (
-    <aside className="w-[280px] xl:w-[320px] shrink-0 border-r hairline bg-card/30 flex flex-col min-h-0">
-      <div className="px-4 py-3 border-b hairline flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+    <aside
+      className={cn(
+        "shrink-0 border-b hairline bg-card/30 flex-col min-h-0 md:flex md:w-[280px] md:border-b-0 md:border-r xl:w-[320px]",
+        hasSources ? "flex max-h-48 md:max-h-none" : "hidden md:flex",
+      )}
+    >
+      <div className="flex items-center justify-between border-b hairline px-4 py-3 ufo-kicker">
         <span>SOURCES</span>
         <span className="text-foreground/60 tabular-nums">
           [{sources.length.toString().padStart(2, "0")}]
@@ -40,15 +47,15 @@ export function SourcesRail({
       </div>
 
       <div className="flex-1 overflow-y-auto scrollbar-none">
-        {sources.length === 0 ? (
-          <div className="p-6 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/70 leading-relaxed">
-            CITED PAGES APPEAR HERE.
+        {!hasSources ? (
+          <div className="p-6 ufo-kicker text-muted-foreground/70 leading-relaxed">
+            CITED PAGES WILL APPEAR HERE.
             <br />
             <br />
-            CLICK TO OPEN PREVIEW.
+            OPEN ONE TO CHECK THE SOURCE.
           </div>
         ) : (
-          <ol className="p-3 space-y-2">
+          <ol className="flex gap-2 overflow-x-auto p-3 md:block md:space-y-2 md:overflow-x-visible">
             {sources.map((s, i) => {
               const key = sourceKey(s);
               const active = activeKey === key;
@@ -58,13 +65,13 @@ export function SourcesRail({
                     type="button"
                     onClick={() => onOpenSource(s)}
                     className={cn(
-                      "group block w-full text-left border transition-colors overflow-hidden",
+                      "group block w-[176px] shrink-0 overflow-hidden border text-left transition-[background-color,border-color,scale] active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 md:w-full",
                       active
                         ? "border-cyan bg-cyan/5"
                         : "hairline hover:border-foreground/30",
                     )}
                   >
-                    <div className="relative w-full aspect-[3/4] bg-black/40 overflow-hidden border-b hairline">
+                    <div className="relative w-full aspect-[3/4] bg-background/40 overflow-hidden border-b hairline">
                       {s.thumbUrl ? (
                         <Image
                           src={s.thumbUrl}
@@ -73,7 +80,7 @@ export function SourcesRail({
                           unoptimized
                           sizes="320px"
                           className={cn(
-                            "object-cover object-top transition-opacity",
+                            "object-cover object-top image-outline transition-opacity",
                             active ? "opacity-100" : "opacity-70 group-hover:opacity-100",
                           )}
                         />
@@ -84,9 +91,9 @@ export function SourcesRail({
                       )}
                       <span
                         className={cn(
-                          "absolute top-1.5 left-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-mono",
+                          "absolute top-1.5 left-1.5 inline-flex h-[18px] min-w-[18px] items-center justify-center px-1 font-mono text-[10px]",
                           active
-                            ? "bg-cyan text-black"
+                            ? "bg-cyan text-background"
                             : "bg-foreground text-background",
                         )}
                       >
@@ -97,10 +104,10 @@ export function SourcesRail({
                       </span>
                     </div>
                     <div className="p-2.5 space-y-1">
-                      <p className="text-[10px] uppercase tracking-[0.1em] line-clamp-2 leading-snug">
+                      <p className="line-clamp-2 text-[10px] uppercase leading-snug tracking-[0.1em] text-foreground/90">
                         {s.documentTitle}
                       </p>
-                      <p className="text-[10px] text-muted-foreground/80 line-clamp-2 leading-snug normal-case tracking-normal">
+                      <p className="line-clamp-2 text-[10px] leading-snug tracking-normal text-muted-foreground/80">
                         {s.snippet}
                       </p>
                     </div>

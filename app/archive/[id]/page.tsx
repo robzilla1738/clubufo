@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { db, schema } from "@/lib/db/client";
 import { eq, asc } from "drizzle-orm";
+import { PageImageViewer } from "@/components/archive/page-image-viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -53,24 +54,23 @@ export default async function DocumentPage(props: {
 
   return (
     <div className="flex-1 flex flex-col">
-      {/* HEADER */}
       <header className="border-b hairline">
-        <div className="px-6 lg:px-10 py-10 grid gap-6 md:grid-cols-[1fr_320px]">
+        <div className="ufo-page-pad grid gap-8 py-8 md:grid-cols-[1fr_320px] md:py-10">
           <div className="space-y-3 min-w-0">
             <Link
               href="/archive"
-              className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground hover:text-cyan transition-colors"
+              className="hit-target inline-flex items-center text-[10px] uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
             >
               &lt; ARCHIVE
             </Link>
-            <p className="text-[10px] uppercase tracking-[0.18em] text-cyan">
+            <p className="ufo-kicker ufo-kicker-strong">
               &gt; FILE / {doc.id.slice(0, 8).toUpperCase()}
             </p>
-            <h1 className="text-2xl md:text-3xl uppercase tracking-tight leading-[1.15] text-balance">
+            <h1 className="ufo-headline">
               {doc.kicker ?? doc.title}
             </h1>
             {doc.summary ? (
-              <p className="text-[12px] uppercase tracking-[0.06em] text-muted-foreground leading-[1.7] max-w-2xl normal-case">
+              <p className="ufo-copy max-w-2xl">
                 {doc.summary}
               </p>
             ) : null}
@@ -79,7 +79,7 @@ export default async function DocumentPage(props: {
                 <Link
                   key={t}
                   href={`/archive?tag=${encodeURIComponent(t)}`}
-                  className="border hairline px-2 h-6 text-[10px] uppercase tracking-[0.12em] text-muted-foreground hover:text-cyan hover:border-cyan transition-colors flex items-center"
+                  className="ufo-chip"
                 >
                   {t}
                 </Link>
@@ -88,34 +88,34 @@ export default async function DocumentPage(props: {
             <div className="pt-3">
               <Link
                 href={`/chat?doc=${doc.id}`}
-                className="inline-flex items-center gap-2 border border-cyan text-cyan hover:bg-cyan hover:text-black transition-colors px-4 py-2 text-[10px] uppercase tracking-[0.18em]"
+                className="ufo-action ufo-action-primary"
               >
-                &gt; QUERY THIS FILE
+                &gt; ASK ABOUT THIS FILE
               </Link>
             </div>
           </div>
 
           {/* META PANEL */}
-          <dl className="border hairline divide-y divide-border text-[10px] uppercase tracking-[0.12em] self-start">
+          <dl className="self-start divide-y divide-border border hairline text-[10px] uppercase tracking-[0.12em]">
             <Meta label="AGENCY" value={doc.agency ?? "N/A"} />
             <Meta label="TYPE" value={doc.documentType ?? "N/A"} />
             <Meta label="INCIDENT DATE" value={doc.incidentDate ?? "N/A"} />
             <Meta label="LOCATION" value={doc.incidentLocation ?? "N/A"} />
-            <Meta label="PAGES" value={String(doc.pageCount ?? "—")} />
+            <Meta label="PAGES" value={String(doc.pageCount ?? "N/A")} />
             <Meta
               label="EXTRACTED"
-              value={`${doc.pagesProcessed} / ${doc.pageCount ?? "—"}`}
+              value={`${doc.pagesProcessed} / ${doc.pageCount ?? "N/A"}`}
             />
             <Meta label="STATUS" value={doc.status.toUpperCase()} />
             {doc.fileUrl ? (
-              <div className="grid grid-cols-[110px_1fr] items-baseline gap-3 px-3 py-2.5">
+              <div className="ufo-meta-grid">
                 <dt className="text-muted-foreground">SOURCE</dt>
                 <dd>
                   <a
                     href={doc.fileUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-cyan hover:underline"
+                    className="text-cyan hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
                   >
                     [↗ ORIGINAL]
                   </a>
@@ -127,18 +127,18 @@ export default async function DocumentPage(props: {
       </header>
 
       {/* PAGES GRID */}
-      <section className="px-6 lg:px-10 py-10">
-        <div className="flex items-baseline justify-between mb-6">
-          <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+      <section className="ufo-page-pad py-8 md:py-10">
+        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
+          <p className="ufo-kicker">
             &gt; PAGES INDEXED [{pageRows.length.toString().padStart(3, "0")}]
           </p>
-          <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-            CLICK FOR FULL READ
+          <p className="ufo-kicker">
+            OPEN A PAGE BELOW
           </p>
         </div>
         {pageRows.length === 0 ? (
           <div className="border hairline p-12 text-center text-[11px] uppercase tracking-wider text-muted-foreground">
-            [NO PAGES YET — DOCUMENT STILL PROCESSING]
+            [NO PAGES YET: DOCUMENT STILL PROCESSING]
           </div>
         ) : (
           <ol className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -146,9 +146,9 @@ export default async function DocumentPage(props: {
               <li key={p.id}>
                 <a
                   href={`#p-${p.page}`}
-                  className="group block border hairline hover:border-cyan transition-colors"
+                  className="group block border hairline transition-colors hover:border-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
                 >
-                  <div className="relative aspect-[3/4] bg-black/40 overflow-hidden">
+                  <div className="relative aspect-[3/4] bg-background/40 overflow-hidden">
                     {p.thumbUrl ? (
                       <Image
                         src={p.thumbUrl}
@@ -156,11 +156,11 @@ export default async function DocumentPage(props: {
                         fill
                         unoptimized
                         sizes="240px"
-                        className="object-cover object-top opacity-80 group-hover:opacity-100 transition-opacity"
+                        className="object-cover object-top opacity-80 image-outline transition-opacity group-hover:opacity-100"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center text-[10px] uppercase tracking-wider text-muted-foreground">
-                        [—]
+                        [NO PREVIEW]
                       </div>
                     )}
                     <span className="absolute top-1.5 right-1.5 font-mono text-[10px] tabular-nums bg-background/85 px-1.5 py-0.5">
@@ -179,27 +179,20 @@ export default async function DocumentPage(props: {
         )}
       </section>
 
-      {/* FULL READ */}
-      <section className="px-6 lg:px-10 pb-20">
-        <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground mb-6">
-          &gt; FULL READ
+      {/* PAGE TEXT */}
+      <section className="ufo-page-pad pb-16 md:pb-20">
+        <p className="ufo-kicker mb-6">
+          &gt; PAGE TEXT
         </p>
-        <div className="space-y-12 max-w-4xl">
+        <div className="max-w-4xl space-y-10 md:space-y-12">
           {pageRows.map((p) => (
-            <article key={p.id} id={`p-${p.page}`} className="grid gap-5 md:grid-cols-[160px_1fr]">
+            <article key={p.id} id={`p-${p.page}`} className="grid scroll-mt-20 gap-5 md:grid-cols-[160px_1fr]">
               <div className="space-y-2">
-                {p.thumbUrl ? (
-                  <div className="relative aspect-[3/4] border hairline overflow-hidden">
-                    <Image
-                      src={p.thumbUrl}
-                      alt={`Page ${p.page}`}
-                      fill
-                      unoptimized
-                      sizes="160px"
-                      className="object-cover object-top"
-                    />
-                  </div>
-                ) : null}
+                <PageImageViewer
+                  page={p.page}
+                  thumbUrl={p.thumbUrl}
+                  imageUrl={p.imageUrl}
+                />
                 <p className="text-[10px] uppercase tracking-[0.18em] text-cyan tabular-nums">
                   PAGE {p.page}
                 </p>
@@ -211,12 +204,12 @@ export default async function DocumentPage(props: {
               </div>
               <div className="space-y-3">
                 {p.pageSummary ? (
-                  <p className="text-[12px] leading-[1.7] text-foreground/80 normal-case tracking-normal italic">
+                  <p className="ufo-copy italic">
                     {p.pageSummary}
                   </p>
                 ) : null}
                 {p.cleanedText ? (
-                  <pre className="whitespace-pre-wrap text-[12px] leading-[1.75] text-foreground/90 normal-case tracking-normal font-mono">
+                  <pre className="whitespace-pre-wrap font-mono text-[12px] leading-[1.75] tracking-normal text-foreground/90">
                     {p.cleanedText}
                   </pre>
                 ) : null}
@@ -231,7 +224,7 @@ export default async function DocumentPage(props: {
 
 function Meta({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid grid-cols-[110px_1fr] items-baseline gap-3 px-3 py-2.5">
+    <div className="ufo-meta-grid">
       <dt className="text-muted-foreground">{label}</dt>
       <dd>
         <span data-bracket className="text-foreground/85">

@@ -11,33 +11,31 @@ import { PreviewPane } from "@/components/chat/preview-pane";
 import type { Source } from "@/components/chat/citation-chip";
 
 const STARTERS = [
-  "WHAT PATTERNS APPEAR ACROSS WITNESS REPORTS?",
-  "SUMMARIZE THE MOST CREDIBLE PILOT ENCOUNTERS.",
-  "WHICH DOCUMENTS DESCRIBE NAVAL UAP SIGHTINGS?",
-  "WHAT WAS PROJECT BLUE BOOK'S OFFICIAL CONCLUSION?",
+  "WHAT PATTERNS SHOW UP IN WITNESS REPORTS?",
+  "SHOW ME PILOT ENCOUNTERS WITH STRONG SOURCES.",
+  "WHICH FILES MENTION NAVAL UAP SIGHTINGS?",
+  "WHAT DID PROJECT BLUE BOOK OFFICIALLY CONCLUDE?",
 ];
 
 export default function ChatClient() {
   const params = useSearchParams();
   const docId = params.get("doc") ?? undefined;
   const initialQ = params.get("q") ?? "";
-  const docIdRef = useRef<string | undefined>(docId);
-  docIdRef.current = docId;
 
   const transport = useMemo(
     () =>
       new DefaultChatTransport<UIMessage>({
         api: "/api/chat",
-        body: () => ({ documentId: docIdRef.current }),
+        body: () => ({ documentId: docId }),
       }),
-    [],
+    [docId],
   );
 
   const { messages, sendMessage, status, stop, error } = useChat({
     transport,
   });
 
-  const [input, setInput] = useState(initialQ);
+  const [input, setInput] = useState(() => (initialQ ? "" : initialQ));
   const [scopedDocTitle, setScopedDocTitle] = useState<string | null>(null);
   const [activeSource, setActiveSource] = useState<Source | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -58,7 +56,6 @@ export default function ChatClient() {
   useEffect(() => {
     if (initialQ && messages.length === 0) {
       void sendMessage({ text: initialQ });
-      setInput("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -77,7 +74,7 @@ export default function ChatClient() {
     const list =
       ((last as { metadata?: { sources?: Source[] } }).metadata?.sources ?? []) as Source[];
     if (list.length > 0 && !activeSource) {
-      setActiveSource(list[0]);
+      queueMicrotask(() => setActiveSource(list[0]));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
@@ -93,40 +90,40 @@ export default function ChatClient() {
   const activeKey = activeSource ? sourceKey(activeSource) : null;
 
   return (
-    <div className="flex h-[calc(100dvh-3.5rem-2.5rem)] min-h-0 overflow-hidden">
-      {/* LEFT — sources */}
+    <div className="flex h-[calc(100dvh-3.5rem-2.5rem)] min-h-0 flex-col overflow-hidden md:flex-row">
+      {/* LEFT: sources */}
       <SourcesRail
         messages={messages}
         activeKey={activeKey}
         onOpenSource={setActiveSource}
       />
 
-      {/* CENTER — thread + composer */}
+      {/* CENTER: thread and composer */}
       <section className="flex-1 flex flex-col min-h-0 min-w-0">
-        <div className="border-b hairline h-10 px-6 flex items-center justify-between text-[10px] uppercase tracking-[0.2em]">
+        <div className="ufo-page-pad flex min-h-10 items-center justify-between gap-3 border-b hairline ufo-kicker">
           <span className="text-muted-foreground truncate">
             <span className="text-cyan">&gt;</span>{" "}
             {scopedDocTitle
               ? `SCOPE / ${scopedDocTitle}`
-              : "SCOPE / FULL CORPUS"}
+              : "SCOPE / FULL ARCHIVE"}
           </span>
           <span className="text-muted-foreground tabular-nums">
             {status === "streaming"
               ? "[STREAMING]"
               : status === "submitted"
-                ? "[QUERYING]"
+                ? "[SEARCHING]"
                 : "[READY]"}
           </span>
         </div>
 
         <div
           ref={scrollerRef}
-          className="flex-1 overflow-y-auto px-8 py-10 scrollbar-none"
+          className="ufo-page-pad flex-1 overflow-y-auto py-7 scrollbar-none md:py-10"
         >
           {messages.length === 0 ? (
             <EmptyState onPick={(t) => setInput(t)} />
           ) : (
-            <div className="max-w-2xl">
+            <div className="mx-auto max-w-2xl md:mx-0">
               <MessageList
                 messages={messages}
                 status={status}
@@ -135,14 +132,14 @@ export default function ChatClient() {
             </div>
           )}
           {error ? (
-            <div className="mt-6 max-w-2xl border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-[11px] uppercase tracking-wider text-destructive">
+            <div className="mx-auto mt-6 max-w-2xl border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-[11px] uppercase tracking-wider text-destructive md:mx-0">
               {error.message}
             </div>
           ) : null}
         </div>
 
-        <div className="border-t hairline px-8 py-5">
-          <div className="max-w-2xl">
+        <div className="ufo-page-pad border-t hairline py-4 md:py-5">
+          <div className="mx-auto max-w-2xl md:mx-0">
             <Composer
               value={input}
               onChange={setInput}
@@ -150,17 +147,17 @@ export default function ChatClient() {
               onStop={stop}
               status={status}
               placeholder={
-                scopedDocTitle ? "QUERY THIS FILE…" : "QUERY THE ARCHIVE…"
+                scopedDocTitle ? "ASK ABOUT THIS FILE…" : "ASK THE ARCHIVE…"
               }
             />
-            <p className="mt-2.5 text-[9px] uppercase tracking-[0.22em] text-muted-foreground/50">
-              GENERATED · VERIFY AGAINST CITED PAGE
+            <p className="mt-2.5 ufo-kicker text-[9px] text-muted-foreground/50">
+              CHECK ANSWERS AGAINST THE CITED PAGE
             </p>
           </div>
         </div>
       </section>
 
-      {/* RIGHT — preview */}
+      {/* RIGHT: preview */}
       <PreviewPane source={activeSource} />
     </div>
   );
@@ -168,23 +165,23 @@ export default function ChatClient() {
 
 function EmptyState({ onPick }: { onPick: (t: string) => void }) {
   return (
-    <div className="h-full flex flex-col justify-center max-w-2xl mx-auto py-12">
+    <div className="h-full flex flex-col justify-center max-w-2xl mx-auto py-8 md:py-12">
       <div className="space-y-4">
-        <p className="text-[10px] uppercase tracking-[0.22em] text-cyan">
+        <p className="ufo-kicker ufo-kicker-strong">
           &gt; READY
         </p>
-        <h2 className="text-2xl md:text-3xl uppercase tracking-[0.04em] leading-[1.2]">
-          QUERY THE CORPUS.
+        <h2 className="ufo-headline">
+          ASK THE ARCHIVE.
           <br />
           <span className="text-muted-foreground/80">
-            EVERY ANSWER CITES ITS PAGE.
+            EVERY ANSWER CITES A PAGE.
           </span>
         </h2>
       </div>
 
-      <div className="mt-12 space-y-3">
-        <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-          SUGGESTED
+      <div className="mt-10 space-y-3 md:mt-12">
+        <p className="ufo-kicker">
+          TRY ONE
         </p>
         <ul className="divide-y divide-border/50 border-y hairline">
           {STARTERS.map((s) => (
@@ -192,7 +189,7 @@ function EmptyState({ onPick }: { onPick: (t: string) => void }) {
               <button
                 type="button"
                 onClick={() => onPick(s)}
-                className="w-full text-left flex items-center gap-3 py-3.5 px-1 text-[12px] uppercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-colors group"
+                className="group hit-target flex w-full items-center gap-3 px-1 py-3.5 text-left text-[12px] uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
               >
                 <span className="text-cyan/60 group-hover:text-cyan">&gt;</span>
                 <span className="flex-1">{s}</span>

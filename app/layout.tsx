@@ -4,7 +4,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { HudBar } from "@/components/site/hud-bar";
 import { HudFooter } from "@/components/site/hud-footer";
-import { CommandMenu } from "@/components/site/command-menu";
 import "./globals.css";
 
 const geistMono = Geist_Mono({
@@ -13,24 +12,33 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
+const previewImage = {
+  url: "/alienlinkprev.png",
+  width: 1731,
+  height: 909,
+  alt: "ChatUFO public archive link preview",
+};
+
 export const metadata: Metadata = {
   title: {
-    default: "ChatUFO // ARCHIVE OF DECLASSIFIED UAP DOCUMENTS",
+    default: "ChatUFO // DECLASSIFIED UAP FILES",
     template: "%s · CHATUFO",
   },
   description:
-    "Chat with the UAP archive. 119 declassified files, 4,000+ pages — page-by-page transcribed, claim-cited, and queryable. Every answer points back to its source page.",
+    "Ask questions across declassified UAP files. Every answer cites the page it came from.",
   metadataBase: new URL("https://chatufo.com"),
   openGraph: {
     title: "ChatUFO",
-    description: "Chat with the declassified UAP archive — answers cite their source page.",
+    description: "Ask declassified UAP files and check every answer against its source page.",
     type: "website",
     siteName: "ChatUFO",
+    images: [previewImage],
   },
   twitter: {
     card: "summary_large_image",
     title: "ChatUFO",
-    description: "Chat with the declassified UAP archive.",
+    description: "Ask declassified UAP files and check the source.",
+    images: [previewImage],
   },
   icons: {
     icon: [
@@ -53,7 +61,6 @@ export default function RootLayout({
           <HudBar />
           <main className="flex-1 flex flex-col min-h-0">{children}</main>
           <HudFooter />
-          <CommandMenu />
           <Toaster
             position="bottom-right"
             theme="dark"

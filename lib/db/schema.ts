@@ -56,6 +56,8 @@ export const claimKind = pgEnum("claim_kind", [
   "instruction",
 ]);
 
+export const mediaKind = pgEnum("media_kind", ["pdf", "image", "video"]);
+
 export const documents = pgTable(
   "documents",
   {
@@ -63,6 +65,8 @@ export const documents = pgTable(
     title: text("title").notNull(),
     filename: text("filename").notNull(),
     sha256: text("sha256").notNull(),
+    mediaKind: mediaKind("media_kind").default("pdf").notNull(),
+    durationSec: integer("duration_sec"),
     fileUrl: text("file_url"),
     coverImageUrl: text("cover_image_url"),
     pageCount: integer("page_count"),

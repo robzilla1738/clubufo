@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { db, schema } from "@/lib/db/client";
-import { desc, eq, count, and, isNotNull } from "drizzle-orm";
-import { HeroCarousel, type CarouselSlide } from "@/components/site/hero-carousel";
+import { desc, eq, count, and, isNotNull, ne, sql } from "drizzle-orm";
+import { HeroFileShelf, type HeroFile } from "@/components/site/hero-carousel";
 
 export const dynamic = "force-dynamic";
+
+const HOME_PREVIEW_LIMIT = 15;
 
 export default async function Home() {
   let total = 0;
   let pageCount = 0;
   let claimCount = 0;
-  let slides: CarouselSlide[] = [];
+  let files: HeroFile[] = [];
 
   try {
     const [{ value: docs }] = await db
@@ -34,28 +36,33 @@ export default async function Home() {
         id: schema.pages.documentId,
         title: schema.documents.kicker,
         fallbackTitle: schema.documents.title,
-        page: schema.pages.page,
-        thumbUrl: schema.pages.thumbUrl,
-        imageUrl: schema.pages.imageUrl,
+        agency: schema.documents.agency,
+        documentType: schema.documents.documentType,
+        pageCount: schema.documents.pageCount,
+        coverImageUrl: schema.documents.coverImageUrl,
       })
       .from(schema.pages)
       .innerJoin(schema.documents, eq(schema.documents.id, schema.pages.documentId))
       .where(
         and(
           eq(schema.documents.status, "ready"),
+          ne(schema.documents.documentType, "PHOTOGRAPH"),
+          eq(schema.pages.status, "extracted"),
           eq(schema.pages.page, 1),
-          isNotNull(schema.pages.thumbUrl),
+          isNotNull(schema.documents.coverImageUrl),
+          sql`coalesce(${schema.documents.kicker}, ${schema.documents.title}) not ilike 'WUS-UAP-161%'`,
         ),
       )
       .orderBy(desc(schema.documents.uploadedAt))
-      .limit(28);
+      .limit(HOME_PREVIEW_LIMIT);
 
-    slides = rows.map((r) => ({
+    files = rows.map((r) => ({
       id: r.id,
       title: r.title || r.fallbackTitle,
-      page: r.page,
-      thumbUrl: r.thumbUrl,
-      imageUrl: r.imageUrl,
+      agency: r.agency,
+      documentType: r.documentType,
+      pageCount: r.pageCount,
+      coverImageUrl: r.coverImageUrl,
     }));
   } catch (e) {
     console.warn("[home] db unavailable", e);
@@ -63,43 +70,42 @@ export default async function Home() {
 
   return (
     <div className="flex-1 flex flex-col">
-      {/* HERO — carousel takes the room, text is minimal */}
-      <section className="flex-1 flex flex-col justify-center min-h-[70vh] py-16 md:py-24">
-        <div className="px-6 lg:px-10 mb-10 md:mb-14 grid grid-cols-3 items-end gap-4 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-          <div>
+      <section className="flex-1 flex flex-col justify-center min-h-[70vh] py-10 sm:py-14 md:py-20">
+        <div className="ufo-page-pad mb-8 grid gap-3 text-center ufo-kicker md:mb-12 md:grid-cols-3 md:items-end md:gap-4 md:text-left">
+          <div className="order-2 md:order-none">
             &gt; <span className="text-foreground/80">RELEASE 01</span>
           </div>
-          <div className="text-center">
-            ARCHIVE OF DECLASSIFIED UAP RECORDS
+          <div className="order-1 text-foreground/70 md:order-none md:text-center">
+            DECLASSIFIED UAP FILES, READY TO SEARCH
           </div>
-          <div className="text-right tabular-nums">
+          <div className="order-3 flex flex-wrap justify-center gap-x-2 gap-y-1 tabular-nums md:order-none md:block md:text-right">
             <Stat value={total || 119} label="FILES" />
-            <span className="mx-2 opacity-30">·</span>
+            <span className="hidden opacity-30 md:inline md:mx-2">·</span>
             <Stat value={pageCount} label="PAGES" />
-            <span className="mx-2 opacity-30">·</span>
+            <span className="hidden opacity-30 md:inline md:mx-2">·</span>
             <Stat value={claimCount} label="CLAIMS" />
           </div>
         </div>
 
-        <HeroCarousel slides={slides} />
+        <HeroFileShelf files={files} />
 
-        <div className="mt-16 md:mt-20 text-center px-6">
-          <h1 className="text-2xl md:text-3xl uppercase tracking-[0.06em]">
-            <span className="text-muted-foreground">QUERY THE CORPUS.</span>{" "}
-            <span className="text-cyan">READ THE SOURCE.</span>
+        <div className="ufo-page-pad mt-12 text-center md:mt-16">
+          <h1 className="ufo-headline">
+            <span className="text-muted-foreground">ASK THE ARCHIVE.</span>{" "}
+            <span className="text-cyan">CHECK THE PAGE.</span>
           </h1>
-          <div className="mt-8 flex items-center justify-center gap-3">
+          <div className="mx-auto mt-7 flex max-w-sm flex-col items-stretch justify-center gap-3 sm:max-w-none sm:flex-row sm:items-center">
             <Link
               href="/chat"
-              className="inline-flex items-center gap-2 px-6 py-3 border border-cyan text-cyan hover:bg-cyan hover:text-black transition-colors text-[11px] uppercase tracking-[0.22em]"
+              className="ufo-action ufo-action-primary px-6 py-3 text-[11px] tracking-[0.22em]"
             >
-              &gt; OPEN TERMINAL
+              &gt; OPEN CHAT
             </Link>
             <Link
               href="/archive"
-              className="inline-flex items-center gap-2 px-6 py-3 border hairline text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors text-[11px] uppercase tracking-[0.22em]"
+              className="ufo-action px-6 py-3 text-[11px] tracking-[0.22em]"
             >
-              BROWSE ARCHIVE
+              BROWSE FILES
             </Link>
           </div>
         </div>

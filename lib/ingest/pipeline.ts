@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { basename } from "node:path";
-import { eq, and, inArray, sql } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { db, schema } from "@/lib/db/client";
 import { renderPdfPages, pdfPageCount } from "./render";
 import { storePageImage } from "./storage";
@@ -67,7 +67,7 @@ export async function ingestPdfFile(opts: IngestOptions): Promise<IngestSummary>
   }
 
   const totalPages = await pdfPageCount(opts.pdfPath);
-  log(`${filename} — ${totalPages} pages, sha=${sha256.slice(0, 8)}`);
+  log(`${filename}: ${totalPages} pages, sha=${sha256.slice(0, 8)}`);
 
   const title = deriveTitle(filename);
 
@@ -125,7 +125,7 @@ export async function ingestPdfFile(opts: IngestOptions): Promise<IngestSummary>
       .where(inArray(schema.pages.id, retryPageIds));
   }
   if (skipPages.size > 0) {
-    log(`  resuming — skipping ${skipPages.size} already-extracted pages`);
+    log(`  resuming: skipping ${skipPages.size} already-extracted pages`);
   }
 
   // Carry forward already-extracted page count if we're resuming.
@@ -169,7 +169,7 @@ export async function ingestPdfFile(opts: IngestOptions): Promise<IngestSummary>
   let renderDone = false;
   const renderError: { err?: unknown } = {};
 
-  // Producer — skip already-extracted pages.
+  // Producer: skip already-extracted pages.
   (async () => {
     try {
       for await (const p of renderPdfPages(opts.pdfPath, { dpi: 200 })) {
@@ -329,7 +329,7 @@ export async function ingestPdfFile(opts: IngestOptions): Promise<IngestSummary>
       .set({ pagesProcessed: pagesExtracted, pagesFailed })
       .where(eq(schema.documents.id, doc.id));
     log(
-      `  ✓ p${item.page} — ${extraction.documentType}, ${extraction.classification}, ${extraction.claims.length} claims`,
+      `  ✓ p${item.page}: ${extraction.documentType}, ${extraction.classification}, ${extraction.claims.length} claims`,
     );
   }
 
@@ -342,7 +342,7 @@ export async function ingestPdfFile(opts: IngestOptions): Promise<IngestSummary>
         ? "ready"
         : "partial";
 
-  // Gemini metadata pass — kicker, agency, type, dates, location, tags.
+  // Gemini metadata pass: kicker, agency, type, dates, location, tags.
   // Skipped if extraction failed or there's no text to work with.
   let metadataUpdate: Partial<typeof schema.documents.$inferInsert> = {};
   if (status !== "failed" && pageSummaries.length > 0) {

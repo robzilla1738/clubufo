@@ -81,21 +81,21 @@ export default function AdminIngestPage() {
       }
     }
     setRunning(false);
-    toast.success("Ingestion complete");
+    toast.success("Files added to the archive");
   };
 
   return (
-    <div className="mx-auto max-w-4xl w-full px-5 sm:px-8 py-12 space-y-8">
-      <header className="space-y-2">
-        <p className="font-mono text-[11px] tracking-widest uppercase text-muted-foreground">
-          Admin · Ingest
+    <div className="ufo-page-pad mx-auto w-full max-w-4xl space-y-8 py-10 md:py-12">
+      <header className="space-y-3 border-b hairline pb-6">
+        <p className="ufo-kicker ufo-kicker-strong">
+          &gt; ADMIN / INGEST
         </p>
-        <h1 className="font-display text-3xl md:text-4xl tracking-tight">
-          Add documents to the corpus
+        <h1 className="ufo-headline">
+          ADD DOCUMENTS TO THE ARCHIVE
         </h1>
-        <p className="text-muted-foreground text-sm max-w-xl leading-relaxed">
-          Drop PDFs to extract, chunk, embed, and index them. For the initial
-          161-document import use{" "}
+        <p className="ufo-copy max-w-2xl">
+          Add PDFs to extract text, create citations, and make them searchable.
+          For the initial 161-document import use{" "}
           <code className="font-mono text-foreground">pnpm ingest &lt;dir&gt;</code>{" "}
           on the server instead.
         </p>
@@ -103,13 +103,15 @@ export default function AdminIngestPage() {
 
       <label
         className={cn(
-          "flex flex-col items-center justify-center gap-3 py-16 rounded-xl border border-dashed border-border/70 bg-card/30 cursor-pointer hover:bg-card/50 transition-colors",
+          "flex cursor-pointer flex-col items-center justify-center gap-3 border border-dashed border-border/70 bg-card/30 px-4 py-14 text-center transition-[background-color,border-color] hover:border-cyan/70 hover:bg-card/50 focus-within:border-cyan sm:py-16",
         )}
       >
         <Upload className="size-6 text-muted-foreground" />
         <div className="text-center space-y-1">
-          <p className="font-display text-lg">Drop PDFs or click to choose</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="font-display text-[13px] uppercase tracking-[0.18em]">
+            DROP PDFS OR CLICK TO CHOOSE
+          </p>
+          <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
             {files.length > 0
               ? `${files.length} file${files.length === 1 ? "" : "s"} ready`
               : "Multiple files supported"}
@@ -133,25 +135,25 @@ export default function AdminIngestPage() {
             value={tags}
             onChange={(e) => setTags(e.target.value)}
             placeholder="declassified, witness-report, 1947"
-            className="bg-card/40"
+            className="h-10 bg-card/40 font-mono text-[12px]"
           />
         </div>
         <Button
           onClick={run}
           disabled={files.length === 0 || running}
-          className="gap-1.5"
+          className="ufo-action ufo-action-primary bg-transparent"
         >
           {running ? <Loader2 className="size-3.5 animate-spin" /> : null}
-          {running ? "Processing…" : `Ingest ${files.length || ""}`}
+          {running ? "Adding files…" : `Add ${files.length || ""}`}
         </Button>
       </div>
 
       {rows.length > 0 ? (
-        <div className="rounded-xl border border-border/60 divide-y divide-border/60 overflow-hidden">
+        <div className="overflow-hidden border border-border/60 divide-y divide-border/60">
           {rows.map((r) => (
             <div
               key={r.filename}
-              className="flex items-center gap-3 px-4 py-3 text-sm bg-card/30"
+              className="flex items-center gap-3 bg-card/30 px-3 py-3 text-sm sm:px-4"
             >
               <StatusIcon status={r.status} />
               <span className="font-mono text-xs truncate flex-1">
@@ -184,5 +186,5 @@ function StatusIcon({ status }: { status: Row["status"] }) {
   if (status === "err") return <XCircle className="size-4 text-destructive" />;
   if (status === "uploading")
     return <Loader2 className="size-4 animate-spin text-muted-foreground" />;
-  return <span className="size-4 rounded-full border border-border/70" />;
+  return <span className="size-4 border border-border/70" />;
 }
